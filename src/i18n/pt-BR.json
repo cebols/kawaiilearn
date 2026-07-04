@@ -78,9 +78,23 @@
     "replay": "Repetir",
     "friendsTitle": "Seus amigos"
   },
+  "onboarding": {
+    "title": "Bem-vindo(a) ao KawaiiLearn!",
+    "subtitle": "Duas perguntinhas para deixar o app com a sua cara.",
+    "genderQ": "Como o app deve se referir a você?",
+    "female": "Feminino",
+    "male": "Masculino",
+    "neutral": "Neutro",
+    "pronounNote": "Em japonês, o 'eu' muda com o falante: 私 (watashi) é universal, 僕 (boku) é masculino casual, あたし (atashi) é feminino casual. Sua escolha vira dica nas lições!",
+    "crushQ": "E a sua paquera do café é…",
+    "crush_haruto": "O barista fofo que decorou seu pedido",
+    "crush_mei": "A barista fofa que decorou seu pedido",
+    "start": "Começar"
+  },
   "chars": {
     "yuki": { "role": "sua amiga do intercâmbio", "bio": "22 anos, energia infinita, fala 100% casual e adora te corrigir rindo." },
     "haruto": { "role": "o barista fofo ☕", "bio": "Trabalha no café perto da estação. Começou no polido, mas está ficando casual com você…" },
+    "mei": { "role": "a barista fofa ☕", "bio": "Trabalha no café perto da estação. Começou no polido, mas está ficando casual com você…" },
     "kenji": { "role": "seu colega de trabalho", "bio": "Sempre educado, sempre no です・ます. Perfeito para treinar o registro polido." },
     "hana": { "role": "sua vizinha querida", "bio": "Obaachan que te dá tangerinas e fala um polido acolhedor e pausado." },
     "aiko": { "role": "sua professora", "bio": "Explica tudo com paciência e te mostra quando usar cada registro." }

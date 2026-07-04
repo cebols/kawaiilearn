@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { DIALOGUES_W1 } from "../content/dialogues";
-import { charById } from "../content/characters";
+import { resolveChar } from "../content/characters";
 import Avatar from "./Avatar";
 import { speak, ttsAvailable } from "../lib/tts";
 import { useAppStore } from "../store/useAppStore";
@@ -17,9 +17,9 @@ interface ChatMsg {
 /** Conversa estilo app de mensagem, com toggle polido⇄casual em toda fala. */
 export default function ChatDialogue({ id }: { id: string }) {
   const { t, i18n } = useTranslation();
-  const { go } = useAppStore();
+  const { go, profile } = useAppStore();
   const dialogue = DIALOGUES_W1.find((d) => d.id === id)!;
-  const char = charById(dialogue.characterId);
+  const char = resolveChar(dialogue.characterId, profile?.crush ?? "haruto");
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
 
   const [register, setRegister] = useState<Register>(dialogue.register === "polite" ? "polite" : "casual");

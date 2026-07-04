@@ -7,10 +7,11 @@ import Flashcards from "./components/Flashcards";
 import TraceCanvas from "./components/TraceCanvas";
 import DialogueList from "./components/DialogueList";
 import ChatDialogue from "./components/ChatDialogue";
+import Onboarding from "./components/Onboarding";
 
 export default function App() {
   const { t, i18n } = useTranslation();
-  const { view, go, init } = useAppStore();
+  const { view, go, init, profile } = useAppStore();
 
   useEffect(() => {
     void init();
@@ -20,6 +21,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh pb-24">
+      {profile === null && <Onboarding />}
       <header className="sticky top-0 z-10 border-b border-sakura-100 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <button onClick={() => go({ name: "home" })} className="text-left">

@@ -133,17 +133,17 @@ export const DIALOGUES_W1: Dialogue[] = [
     ],
   },
   {
-    id: "w1-haruto-cafe",
-    title: { pt: "Café com o Haruto ☕", en: "Coffee with Haruto ☕" },
+    id: "w1-crush-cafe",
+    title: { pt: "Paquera no café ☕", en: "Café crush ☕" },
     scene: {
-      pt: "O café perto da estação. O barista fofo já decorou seu pedido — e hoje puxou papo.",
-      en: "The café by the station. The cute barista memorized your order — and today he's chatting you up.",
+      pt: "O café perto da estação. Sua paquera já decorou seu pedido — e hoje puxou papo.",
+      en: "The café by the station. Your crush memorized your order — and today they're chatting you up.",
     },
     register: "casual",
-    characterId: "haruto",
+    characterId: "crush",
     lines: [
       {
-        speaker: "haruto",
+        speaker: "crush",
         polite: "こんにちは。いつものコーヒーですか？",
         casual: "こんにちは〜。いつものコーヒー？",
         translation: { pt: "Oi! O café de sempre?", en: "Hi! The usual coffee?" },
@@ -167,7 +167,7 @@ export const DIALOGUES_W1: Dialogue[] = [
         ],
       },
       {
-        speaker: "haruto",
+        speaker: "crush",
         polite: "日本語、上手ですね。",
         casual: "日本語うまいね！",
         translation: { pt: "Seu japonês tá bom, hein!", en: "Your Japanese is getting good!" },
@@ -191,7 +191,7 @@ export const DIALOGUES_W1: Dialogue[] = [
         ],
       },
       {
-        speaker: "haruto",
+        speaker: "crush",
         polite: "コーヒー、どうぞ。またお願いします。",
         casual: "コーヒーどうぞ。また来てね。",
         translation: { pt: "Seu café. Volta sempre, tá?", en: "Here's your coffee. Come again, okay?" },

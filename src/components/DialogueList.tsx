@@ -1,13 +1,14 @@
 import { useTranslation } from "react-i18next";
 import { DIALOGUES_W1 } from "../content/dialogues";
-import { charById } from "../content/characters";
+import { resolveChar, castFor } from "../content/characters";
 import Avatar from "./Avatar";
 import { useAppStore } from "../store/useAppStore";
 
 export default function DialogueList() {
   const { t, i18n } = useTranslation();
-  const { go } = useAppStore();
+  const { go, profile } = useAppStore();
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
+  const crush = profile?.crush ?? "haruto";
 
   return (
     <div className="mx-auto max-w-md pop-in">
@@ -16,7 +17,7 @@ export default function DialogueList() {
 
       <div className="mt-5 space-y-3">
         {DIALOGUES_W1.map((d) => {
-          const c = charById(d.characterId);
+          const c = resolveChar(d.characterId, crush);
           return (
             <button
               key={d.id}
@@ -42,8 +43,8 @@ export default function DialogueList() {
       <div className="mt-6 rounded-2xl bg-white p-4 shadow-sm">
         <p className="text-xs font-bold uppercase tracking-wide text-stone-400">{t("dialogue.friendsTitle")}</p>
         <div className="mt-3 space-y-3">
-          {["yuki", "haruto", "kenji", "hana", "aiko"].map((id) => {
-            const c = charById(id);
+          {castFor(crush).map((c) => {
+            const id = c.id;
             return (
               <div key={id} className="flex items-start gap-3">
                 <Avatar c={c} size={40} />

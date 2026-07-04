@@ -81,6 +81,12 @@ function Hair({ c, back = false }: { c: Character; back?: boolean }) {
       ) : (
         <path d="M 24 60 Q 20 32 50 30 Q 80 32 76 60 Q 74 46 62 45 Q 48 42 38 46 Q 27 48 24 60 Z" fill={c.hair} />
       );
+    case "bob":
+      return back ? (
+        <path d="M 20 52 Q 18 74 26 80 Q 32 82 34 76 L 66 76 Q 68 82 74 80 Q 82 74 80 52 Q 76 30 50 28 Q 24 30 20 52 Z" fill={c.hair} />
+      ) : (
+        <path d="M 24 58 Q 20 30 50 28 Q 80 30 76 58 Q 72 44 62 44 Q 50 38 40 46 Q 28 46 24 58 Z" fill={c.hairDark} opacity="0.9" />
+      );
     case "long":
       return back ? (
         <path d="M 22 50 Q 16 78 22 90 L 34 88 Q 28 70 30 54 L 70 54 Q 72 70 66 88 L 78 90 Q 84 78 78 50 Q 74 30 50 28 Q 26 30 22 50 Z" fill={c.hair} />

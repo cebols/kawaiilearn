@@ -78,9 +78,23 @@
     "replay": "Replay",
     "friendsTitle": "Your friends"
   },
+  "onboarding": {
+    "title": "Welcome to KawaiiLearn!",
+    "subtitle": "Two quick questions to make the app yours.",
+    "genderQ": "How should the app refer to you?",
+    "female": "Feminine",
+    "male": "Masculine",
+    "neutral": "Neutral",
+    "pronounNote": "In Japanese, 'I' changes with the speaker: 私 (watashi) is universal, 僕 (boku) is casual masculine, あたし (atashi) is casual feminine. Your pick becomes a hint in lessons!",
+    "crushQ": "And your café crush is…",
+    "crush_haruto": "The cute barista guy who memorized your order",
+    "crush_mei": "The cute barista girl who memorized your order",
+    "start": "Start"
+  },
   "chars": {
     "yuki": { "role": "your exchange friend", "bio": "22, infinite energy, speaks 100% casual and loves correcting you while laughing." },
     "haruto": { "role": "the cute barista ☕", "bio": "Works at the café by the station. Started polite, but he's getting casual with you…" },
+    "mei": { "role": "the cute barista ☕", "bio": "Works at the café by the station. Started polite, but she's getting casual with you…" },
     "kenji": { "role": "your coworker", "bio": "Always courteous, always in です・ます. Perfect for training the polite register." },
     "hana": { "role": "your sweet neighbor", "bio": "An obaachan who gives you tangerines and speaks warm, unhurried polite Japanese." },
     "aiko": { "role": "your teacher", "bio": "Explains everything patiently and shows you when to use each register." }

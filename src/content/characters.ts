@@ -16,7 +16,7 @@ export interface Character {
   skin: string;
   accent: string;
   /** estilo do cabelo desenhado no Avatar.tsx */
-  hairstyle: "twintails" | "short" | "neat" | "bun" | "long";
+  hairstyle: "twintails" | "short" | "neat" | "bun" | "long" | "bob";
   emoji: string;
 }
 
@@ -43,6 +43,18 @@ export const CHARACTERS: Character[] = [
     skin: "#ffe9d6",
     accent: "#60a5fa",
     hairstyle: "short",
+    emoji: "☕",
+  },
+  {
+    id: "mei",
+    name: "Mei",
+    nameJp: "めい",
+    register: "casual",
+    hair: "#f9a8d4",
+    hairDark: "#ec4899",
+    skin: "#ffe4d1",
+    accent: "#fb7185",
+    hairstyle: "bob",
     emoji: "☕",
   },
   {
@@ -85,3 +97,14 @@ export const CHARACTERS: Character[] = [
 
 export const charById = (id: string): Character =>
   CHARACTERS.find((c) => c.id === id) ?? CHARACTERS[0];
+
+/** ID de paquera escolhido no onboarding. */
+export type CrushId = "haruto" | "mei";
+
+/** Resolve o papel dinâmico "crush" para o personagem escolhido pelo usuário. */
+export const resolveChar = (id: string, crush: CrushId): Character =>
+  charById(id === "crush" ? crush : id);
+
+/** Elenco visível para o usuário: a paquera não escolhida fica fora do jogo. */
+export const castFor = (crush: CrushId): Character[] =>
+  CHARACTERS.filter((c) => c.id === crush || (c.id !== "haruto" && c.id !== "mei"));

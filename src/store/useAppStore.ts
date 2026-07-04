@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getKV, setKV } from "../db/db";
 import { deckStats, computeStreak, type DeckStats } from "../srs/engine";
+import type { CrushId } from "../content/characters";
 
 export type View =
   | { name: "home" }
@@ -10,14 +11,25 @@ export type View =
   | { name: "dialogues" }
   | { name: "dialogue"; id: string };
 
+/** Como o app se refere ao usuário — também define a dica de pronome (私/僕/あたし). */
+export type Gender = "female" | "male" | "neutral";
+
+export interface Profile {
+  gender: Gender;
+  crush: CrushId;
+}
+
 interface AppState {
   view: View;
   stats: DeckStats;
   streak: number;
   startedAt: number | null;
+  /** null = onboarding pendente; undefined = ainda carregando do banco */
+  profile: Profile | null | undefined;
   go: (view: View) => void;
   refresh: () => Promise<void>;
   init: () => Promise<void>;
+  saveProfile: (profile: Profile) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -25,6 +37,7 @@ export const useAppStore = create<AppState>((set) => ({
   stats: { due: 0, fresh: 0, learning: 0, mastered: 0, total: 0 },
   streak: 0,
   startedAt: null,
+  profile: undefined,
   go: (view) => set({ view }),
   refresh: async () => {
     const [stats, streak] = await Promise.all([deckStats(), computeStreak()]);
@@ -36,8 +49,17 @@ export const useAppStore = create<AppState>((set) => ({
       started = String(Date.now());
       await setKV("startedAt", started);
     }
-    const [stats, streak] = await Promise.all([deckStats(), computeStreak()]);
-    set({ startedAt: Number(started), stats, streak });
+    const [stats, streak, rawProfile] = await Promise.all([deckStats(), computeStreak(), getKV("profile")]);
+    set({
+      startedAt: Number(started),
+      stats,
+      streak,
+      profile: rawProfile ? (JSON.parse(rawProfile) as Profile) : null,
+    });
+  },
+  saveProfile: async (profile) => {
+    await setKV("profile", JSON.stringify(profile));
+    set({ profile });
   },
 }));
 

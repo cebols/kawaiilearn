@@ -1,15 +1,16 @@
 import { useTranslation } from "react-i18next";
 import { useAppStore, suggestedPace } from "../store/useAppStore";
 import { VOCAB_W1, registerStats } from "../content/vocab";
-import { CHARACTERS } from "../content/characters";
+import { castFor } from "../content/characters";
 import Avatar from "./Avatar";
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
-  const { stats, streak, startedAt, go } = useAppStore();
+  const { stats, streak, startedAt, go, profile } = useAppStore();
   const pace = suggestedPace(startedAt);
   const reg = registerStats(VOCAB_W1);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
+  const cast = castFor(profile?.crush ?? "haruto");
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pop-in">
@@ -69,7 +70,7 @@ export default function Dashboard() {
       <div className="rounded-3xl bg-white p-6 shadow-sm">
         <h3 className="font-bold text-stone-700">{t("dialogue.friendsTitle")}</h3>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {CHARACTERS.map((c) => (
+          {cast.map((c) => (
             <button
               key={c.id}
               onClick={() => go({ name: "dialogues" })}
