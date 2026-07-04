@@ -1,0 +1,89 @@
+{
+  "app": {
+    "tagline": "Japonês do jeito que se fala — 55% polido, 45% coloquial"
+  },
+  "nav": {
+    "home": "Início",
+    "curriculum": "Currículo",
+    "flashcards": "Flashcards",
+    "trace": "Escrita",
+    "dialogues": "Conversas"
+  },
+  "home": {
+    "greeting": "Bem-vindo(a) de volta!",
+    "dueCards": "cards para revisar",
+    "newCards": "cards novos hoje",
+    "streak": "dias seguidos",
+    "startReview": "Revisar agora",
+    "learnNew": "Aprender novos",
+    "suggestedPace": "Ritmo sugerido: semana {{week}}, dia {{day}}",
+    "freePace": "O progresso é livre — esse é só o mínimo sugerido para completar em 12 semanas.",
+    "registerMeter": "Seu equilíbrio de registro",
+    "polite": "Polido",
+    "casual": "Casual",
+    "quickActions": "O que estudar agora",
+    "traceAction": "Praticar escrita",
+    "dialogueAction": "Conversar",
+    "onTrack": "Você está no ritmo! 🌸",
+    "ahead": "Você está adiantado(a)! ✨",
+    "behind": "Sem pressa — o ritmo é seu. 🍵"
+  },
+  "curriculum": {
+    "title": "Trilha de 12 semanas",
+    "subtitle": "Tudo desbloqueado desde o início. A trilha marca o ritmo sugerido, não um cadeado.",
+    "week": "Semana",
+    "suggested": "ritmo sugerido",
+    "phase1": "Fundação",
+    "phase2": "Estrutura",
+    "phase3": "Comunicação",
+    "phase4": "Consolidação",
+    "comingSoon": "Conteúdo desta semana em produção — o motor já está pronto para recebê-lo.",
+    "start": "Estudar"
+  },
+  "flash": {
+    "sessionDone": "Sessão concluída! 🎉",
+    "reviewed": "cards revisados",
+    "again": "De novo",
+    "hard": "Difícil",
+    "good": "Bom",
+    "easy": "Fácil",
+    "showAnswer": "Mostrar resposta",
+    "listen": "Ouvir 🔊",
+    "mnemonic": "Dica",
+    "noCards": "Nenhum card pendente — volte mais tarde ou aprenda novos!",
+    "backHome": "Voltar ao início",
+    "whichRomaji": "Como se lê?",
+    "meaning": "Significado"
+  },
+  "trace": {
+    "title": "Prática de escrita",
+    "instructions": "Trace o caractere por cima do modelo. Capriche na ordem dos traços!",
+    "clear": "Apagar",
+    "next": "Próximo",
+    "prev": "Anterior",
+    "selfGrade": "Como foi?",
+    "gradeBad": "Preciso praticar",
+    "gradeOk": "Quase lá",
+    "gradeGood": "Mandei bem!"
+  },
+  "dialogue": {
+    "title": "Conversas",
+    "subtitle": "Converse com seus amigos japoneses — cada um vive num registro diferente.",
+    "registerToggle": "Registro",
+    "polite": "Polido 丁寧",
+    "casual": "Casual くだけた",
+    "showTranslation": "Ver tradução",
+    "yourTurn": "Sua vez — escolha a resposta:",
+    "finished": "Conversa concluída! 💬",
+    "replay": "Repetir",
+    "friendsTitle": "Seus amigos"
+  },
+  "chars": {
+    "yuki": { "role": "sua amiga do intercâmbio", "bio": "22 anos, energia infinita, fala 100% casual e adora te corrigir rindo." },
+    "haruto": { "role": "o barista fofo ☕", "bio": "Trabalha no café perto da estação. Começou no polido, mas está ficando casual com você…" },
+    "kenji": { "role": "seu colega de trabalho", "bio": "Sempre educado, sempre no です・ます. Perfeito para treinar o registro polido." },
+    "hana": { "role": "sua vizinha querida", "bio": "Obaachan que te dá tangerinas e fala um polido acolhedor e pausado." },
+    "aiko": { "role": "sua professora", "bio": "Explica tudo com paciência e te mostra quando usar cada registro." }
+  },
+  "lang": { "switch": "English" }
+}

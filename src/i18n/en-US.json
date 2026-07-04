@@ -1,0 +1,89 @@
+{
+  "app": {
+    "tagline": "Japanese the way it's spoken — 55% polite, 45% colloquial"
+  },
+  "nav": {
+    "home": "Home",
+    "curriculum": "Curriculum",
+    "flashcards": "Flashcards",
+    "trace": "Writing",
+    "dialogues": "Chats"
+  },
+  "home": {
+    "greeting": "Welcome back!",
+    "dueCards": "cards due for review",
+    "newCards": "new cards today",
+    "streak": "day streak",
+    "startReview": "Review now",
+    "learnNew": "Learn new",
+    "suggestedPace": "Suggested pace: week {{week}}, day {{day}}",
+    "freePace": "Progress is free — this is just the suggested minimum to finish in 12 weeks.",
+    "registerMeter": "Your register balance",
+    "polite": "Polite",
+    "casual": "Casual",
+    "quickActions": "What to study now",
+    "traceAction": "Practice writing",
+    "dialogueAction": "Chat",
+    "onTrack": "You're on pace! 🌸",
+    "ahead": "You're ahead of schedule! ✨",
+    "behind": "No rush — the pace is yours. 🍵"
+  },
+  "curriculum": {
+    "title": "12-week path",
+    "subtitle": "Everything is unlocked from day one. The path marks the suggested pace, not a lock.",
+    "week": "Week",
+    "suggested": "suggested pace",
+    "phase1": "Foundation",
+    "phase2": "Structure",
+    "phase3": "Communication",
+    "phase4": "Consolidation",
+    "comingSoon": "This week's content is in production — the engine is ready for it.",
+    "start": "Study"
+  },
+  "flash": {
+    "sessionDone": "Session complete! 🎉",
+    "reviewed": "cards reviewed",
+    "again": "Again",
+    "hard": "Hard",
+    "good": "Good",
+    "easy": "Easy",
+    "showAnswer": "Show answer",
+    "listen": "Listen 🔊",
+    "mnemonic": "Hint",
+    "noCards": "No cards due — come back later or learn new ones!",
+    "backHome": "Back home",
+    "whichRomaji": "How is it read?",
+    "meaning": "Meaning"
+  },
+  "trace": {
+    "title": "Writing practice",
+    "instructions": "Trace the character over the model. Mind the stroke order!",
+    "clear": "Clear",
+    "next": "Next",
+    "prev": "Previous",
+    "selfGrade": "How did it go?",
+    "gradeBad": "Needs practice",
+    "gradeOk": "Almost there",
+    "gradeGood": "Nailed it!"
+  },
+  "dialogue": {
+    "title": "Chats",
+    "subtitle": "Talk with your Japanese friends — each one lives in a different register.",
+    "registerToggle": "Register",
+    "polite": "Polite 丁寧",
+    "casual": "Casual くだけた",
+    "showTranslation": "Show translation",
+    "yourTurn": "Your turn — pick a reply:",
+    "finished": "Conversation complete! 💬",
+    "replay": "Replay",
+    "friendsTitle": "Your friends"
+  },
+  "chars": {
+    "yuki": { "role": "your exchange friend", "bio": "22, infinite energy, speaks 100% casual and loves correcting you while laughing." },
+    "haruto": { "role": "the cute barista ☕", "bio": "Works at the café by the station. Started polite, but he's getting casual with you…" },
+    "kenji": { "role": "your coworker", "bio": "Always courteous, always in です・ます. Perfect for training the polite register." },
+    "hana": { "role": "your sweet neighbor", "bio": "An obaachan who gives you tangerines and speaks warm, unhurried polite Japanese." },
+    "aiko": { "role": "your teacher", "bio": "Explains everything patiently and shows you when to use each register." }
+  },
+  "lang": { "switch": "Português" }
+}
