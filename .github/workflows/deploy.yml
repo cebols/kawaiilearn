@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, "claude/japanese-learning-app-design-8h0ty1"]
   workflow_dispatch:
 
 permissions:
