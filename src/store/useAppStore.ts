@@ -26,18 +26,22 @@ interface AppState {
   startedAt: number | null;
   /** null = onboarding pendente; undefined = ainda carregando do banco */
   profile: Profile | null | undefined;
+  /** ids de diálogos já concluídos — para marcar ✓ e destacar os novos */
+  completedDialogues: Set<string>;
   go: (view: View) => void;
   refresh: () => Promise<void>;
   init: () => Promise<void>;
   saveProfile: (profile: Profile) => Promise<void>;
+  completeDialogue: (id: string) => Promise<void>;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   view: { name: "home" },
   stats: { due: 0, fresh: 0, learning: 0, mastered: 0, total: 0 },
   streak: 0,
   startedAt: null,
   profile: undefined,
+  completedDialogues: new Set(),
   go: (view) => set({ view }),
   refresh: async () => {
     const [stats, streak] = await Promise.all([deckStats(), computeStreak()]);
@@ -49,17 +53,30 @@ export const useAppStore = create<AppState>((set) => ({
       started = String(Date.now());
       await setKV("startedAt", started);
     }
-    const [stats, streak, rawProfile] = await Promise.all([deckStats(), computeStreak(), getKV("profile")]);
+    const [stats, streak, rawProfile, rawDone] = await Promise.all([
+      deckStats(),
+      computeStreak(),
+      getKV("profile"),
+      getKV("completedDialogues"),
+    ]);
     set({
       startedAt: Number(started),
       stats,
       streak,
       profile: rawProfile ? (JSON.parse(rawProfile) as Profile) : null,
+      completedDialogues: new Set(rawDone ? (JSON.parse(rawDone) as string[]) : []),
     });
   },
   saveProfile: async (profile) => {
     await setKV("profile", JSON.stringify(profile));
     set({ profile });
+  },
+  completeDialogue: async (id) => {
+    const next = new Set(get().completedDialogues);
+    if (next.has(id)) return;
+    next.add(id);
+    await setKV("completedDialogues", JSON.stringify([...next]));
+    set({ completedDialogues: next });
   },
 }));
 

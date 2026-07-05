@@ -54,8 +54,9 @@ export default function App() {
           <NavBtn active={view.name === "home"} icon="🏠" label={t("nav.home")} onClick={() => go({ name: "home" })} />
           <NavBtn active={view.name === "curriculum"} icon="🗺️" label={t("nav.curriculum")} onClick={() => go({ name: "curriculum" })} />
           <NavBtn active={view.name === "flashcards"} icon="🎴" label={t("nav.flashcards")} onClick={() => go({ name: "flashcards", deck: "hiragana" })} />
-          <NavBtn active={view.name === "trace"} icon="✍️" label={t("nav.trace")} onClick={() => go({ name: "trace" })} />
+          {/* comunicação em primeiro plano: conversas antes da escrita manual */}
           <NavBtn active={view.name === "dialogues" || view.name === "dialogue"} icon="💬" label={t("nav.dialogues")} onClick={() => go({ name: "dialogues" })} />
+          <NavBtn active={view.name === "trace"} icon="✍️" label={t("nav.trace")} onClick={() => go({ name: "trace" })} />
         </div>
       </nav>
     </div>

@@ -53,6 +53,10 @@ export interface Dialogue {
   /** registro predominante da cena — o toggle sempre mostra os dois */
   register: Register;
   characterId: string;
+  /** nível sugerido: os chats acompanham o vocabulário que o usuário já viu */
+  week: number;
+  /** contexto do chat: conversa presencial ou por mensagem (muda a UI/vibe) */
+  medium?: "irl" | "text";
   lines: DialogueLine[];
 }
 

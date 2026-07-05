@@ -1,12 +1,8 @@
 name: Deploy to GitHub Pages
 
-# O environment github-pages foi criado permitindo deploy apenas da branch
-# default (a claude/...). Até a default virar main (Settings → General) ou o
-# environment liberar main (Settings → Environments → github-pages), o gatilho
-# na branch de trabalho é o que mantém o site publicando.
 on:
   push:
-    branches: [main, "claude/japanese-learning-app-design-8h0ty1"]
+    branches: [main]
   workflow_dispatch:
 
 permissions:

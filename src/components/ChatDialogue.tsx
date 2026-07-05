@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { DIALOGUES_W1 } from "../content/dialogues";
+import { DIALOGUES } from "../content/dialogues";
 import { resolveChar } from "../content/characters";
 import Avatar from "./Avatar";
 import { speak, ttsAvailable } from "../lib/tts";
@@ -26,8 +26,8 @@ function kanaOf(m: SpeechPair, casual: boolean): string | null {
 /** Conversa estilo app de mensagem, com toggle polido⇄casual em toda fala. */
 export default function ChatDialogue({ id }: { id: string }) {
   const { t, i18n } = useTranslation();
-  const { go, profile } = useAppStore();
-  const dialogue = DIALOGUES_W1.find((d) => d.id === id)!;
+  const { go, profile, completeDialogue } = useAppStore();
+  const dialogue = DIALOGUES.find((d) => d.id === id)!;
   const char = resolveChar(dialogue.characterId, profile?.crush ?? "haruto");
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
 
@@ -61,6 +61,10 @@ export default function ChatDialogue({ id }: { id: string }) {
     // rola só a lista de mensagens — scrollIntoView rolava a página e enterrava o header
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, finished]);
+
+  useEffect(() => {
+    if (finished) void completeDialogue(id);
+  }, [finished, id, completeDialogue]);
 
   const choose = (c: SpeechPair) => {
     setMsgs((m) => [...m, { from: "you", ...c }]);
