@@ -14,9 +14,11 @@ permissions:
   pages: write
   id-token: write
 
+# cancel-in-progress desligado: com gatilho em duas branches, a run da main
+# (bloqueada pelo environment) cancelava a run boa da branch default.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
