@@ -2,7 +2,15 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { HIRAGANA } from "../content/hiragana";
 import type { Grade } from "ts-fsrs";
-import { ensureDeck, buildQueue, review, Rating } from "../srs/engine";
+import {
+  ensureDeck,
+  buildQueue,
+  buildCramQueue,
+  countNewInDeck,
+  review,
+  Rating,
+  NEW_PER_DAY,
+} from "../srs/engine";
 import type { StoredCard } from "../db/db";
 import { speak, ttsAvailable } from "../lib/tts";
 import { useAppStore } from "../store/useAppStore";
@@ -15,6 +23,9 @@ export default function Flashcards({ deck }: { deck: string }) {
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [reviewed, setReviewed] = useState(0);
+  const [moreNew, setMoreNew] = useState(0);
+  /** modo prática: quiz sem remexer no agendamento FSRS */
+  const [cram, setCram] = useState(false);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
 
   useEffect(() => {
@@ -31,13 +42,19 @@ export default function Flashcards({ deck }: { deck: string }) {
   const current = queue?.[idx];
   const item = current ? HIRAGANA.find((h) => h.id === current.itemId) : undefined;
 
+  // ao chegar no fim da fila, recalcula quantos cards novos ainda restam no deck
+  useEffect(() => {
+    if (queue && !queue[idx]) void countNewInDeck(deck, "reading").then(setMoreNew);
+  }, [queue, idx, deck]);
+
   const grading = useRef(false);
   const grade = useCallback(
     async (rating: Grade) => {
       // evita que toque duplo avalie o mesmo card 2x e pule o seguinte
       if (!current || grading.current) return;
       grading.current = true;
-      const updated = await review(current, rating);
+      // no modo prática não persistimos nada (não altera o agendamento)
+      const updated = cram ? current : await review(current, rating);
       setReviewed((n) => n + 1);
       setRevealed(false);
       setQueue((q) => {
@@ -49,39 +66,82 @@ export default function Flashcards({ deck }: { deck: string }) {
       });
       setIdx((i) => i + 1);
       grading.current = false;
-      void refresh();
+      if (!cram) void refresh();
     },
-    [current, refresh]
+    [current, cram, refresh]
   );
+
+  const loadMore = useCallback(async () => {
+    const batch = Math.min(NEW_PER_DAY, moreNew);
+    setCram(false);
+    setQueue(await buildQueue(deck, "reading", batch));
+    setIdx(0);
+    setRevealed(false);
+  }, [deck, moreNew]);
+
+  const startCram = useCallback(async () => {
+    setCram(true);
+    setQueue(await buildCramQueue(deck, "reading"));
+    setIdx(0);
+    setRevealed(false);
+    setReviewed(0);
+  }, [deck]);
 
   if (!queue) return null;
 
   if (!current || !item) {
+    const capHit = reviewed === 0 && moreNew > 0;
+    const heading = reviewed > 0 ? t("flash.sessionDone") : moreNew > 0 ? t("flash.dailyDone") : t("flash.noCards");
     return (
       <div className="mx-auto max-w-md pop-in rounded-3xl bg-white p-10 text-center shadow-sm">
-        <p className="text-4xl">🎉</p>
-        <h2 className="mt-3 text-xl font-bold text-stone-800">
-          {reviewed > 0 ? t("flash.sessionDone") : t("flash.noCards")}
-        </h2>
-        {reviewed > 0 && (
+        <p className="text-4xl">{moreNew > 0 ? "🌸" : "🎉"}</p>
+        <h2 className="mt-3 text-xl font-bold text-stone-800">{heading}</h2>
+        {reviewed > 0 && !cram && (
           <p className="mt-1 text-sm text-stone-500">
             {reviewed} {t("flash.reviewed")}
           </p>
         )}
-        <button
-          onClick={() => go({ name: "home" })}
-          className="mt-6 rounded-full bg-sakura-500 px-6 py-2.5 font-semibold text-white transition hover:bg-sakura-600"
-        >
-          {t("flash.backHome")}
-        </button>
+        {capHit && <p className="mt-2 text-xs text-stone-400">{t("flash.dailyDoneSub")}</p>}
+        {moreNew === 0 && <p className="mt-2 text-xs text-stone-400">{t("flash.allLearned")}</p>}
+
+        <div className="mt-6 flex flex-col gap-2">
+          {moreNew > 0 ? (
+            <button
+              onClick={loadMore}
+              className="rounded-full bg-sakura-500 px-6 py-2.5 font-semibold text-white transition hover:bg-sakura-600"
+            >
+              {t("flash.learnMore", { count: Math.min(NEW_PER_DAY, moreNew) })}
+            </button>
+          ) : (
+            <button
+              onClick={startCram}
+              className="rounded-full bg-violet-500 px-6 py-2.5 font-semibold text-white transition hover:bg-violet-600"
+            >
+              {t("flash.practice")}
+            </button>
+          )}
+          <button
+            onClick={() => go({ name: "home" })}
+            className="rounded-full bg-stone-100 px-6 py-2.5 font-semibold text-stone-600 transition hover:bg-stone-200"
+          >
+            {t("flash.backHome")}
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-md pop-in">
-      <p className="mb-2 text-center text-xs text-stone-400">
-        {idx + 1} / {queue.length}
+      <p className="mb-2 flex items-center justify-center gap-2 text-center text-xs text-stone-400">
+        <span>
+          {idx + 1} / {queue.length}
+        </span>
+        {cram && (
+          <span className="rounded-full bg-violet-100 px-2 py-0.5 font-semibold text-violet-600">
+            {t("flash.practiceBadge")}
+          </span>
+        )}
       </p>
       <div className="rounded-3xl bg-white p-8 text-center shadow-sm">
         <p className="text-sm text-stone-400">{t("flash.whichRomaji")}</p>

@@ -57,19 +57,35 @@ function isLearning(c: StoredCard): boolean {
   return c.fsrs.state === State.Learning || c.fsrs.state === State.Relearning;
 }
 
-/** Fila da sessão: vencidos/aprendendo primeiro (anti-avalanche), depois novos até a cota do dia. */
-export async function buildQueue(deck: string, skill: Skill): Promise<StoredCard[]> {
+/** Fila da sessão: vencidos/aprendendo primeiro (anti-avalanche), depois novos até a cota do dia.
+ *  `extraNew` libera cards além da cota diária — o teto é uma sugestão, não uma trava. */
+export async function buildQueue(deck: string, skill: Skill, extraNew = 0): Promise<StoredCard[]> {
   const all = (await db.cards.where("deck").equals(deck).toArray()).filter((c) => c.skill === skill);
   const now = new Date();
   const due = all
     .filter((c) => c.fsrs.state !== State.New && (new Date(c.fsrs.due) <= now || isLearning(c)))
     .sort((a, b) => new Date(a.fsrs.due).getTime() - new Date(b.fsrs.due).getTime());
-  const quota = await newQuotaToday();
+  const quota = (await newQuotaToday()) + extraNew;
   const fresh = all
     .filter((c) => c.fsrs.state === State.New)
     .sort((a, b) => a.addedAt - b.addedAt)
-    .slice(0, quota);
+    .slice(0, Math.max(0, quota));
   return [...due, ...fresh];
+}
+
+/** Quantos cards novos ainda existem no deck (independente da cota do dia). */
+export async function countNewInDeck(deck: string, skill: Skill): Promise<number> {
+  const all = await db.cards.where("deck").equals(deck).toArray();
+  return all.filter((c) => c.skill === skill && c.fsrs.state === State.New).length;
+}
+
+/** Prática livre: tudo que já foi introduzido, ordenado por vencimento.
+ *  Não remexe no agendamento (o chamador não persiste as respostas). */
+export async function buildCramQueue(deck: string, skill: Skill): Promise<StoredCard[]> {
+  const all = (await db.cards.where("deck").equals(deck).toArray()).filter(
+    (c) => c.skill === skill && c.fsrs.state !== State.New
+  );
+  return all.sort((a, b) => new Date(a.fsrs.due).getTime() - new Date(b.fsrs.due).getTime());
 }
 
 /** Aplica a avaliação do usuário e persiste o novo agendamento. */
