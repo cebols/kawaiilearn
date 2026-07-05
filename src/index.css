@@ -29,3 +29,16 @@ html {
 @keyframes draw-stroke {
   to { stroke-dashoffset: 0; }
 }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: var(--color-sakura-400);
+  display: inline-block;
+  animation: typing-bounce 1s ease-in-out infinite;
+}

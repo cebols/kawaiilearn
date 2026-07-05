@@ -7,6 +7,7 @@ import Flashcards from "./components/Flashcards";
 import TraceCanvas from "./components/TraceCanvas";
 import DialogueList from "./components/DialogueList";
 import ChatDialogue from "./components/ChatDialogue";
+import SentenceBuild from "./components/SentenceBuild";
 import Onboarding from "./components/Onboarding";
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
         {view.name === "curriculum" && <CurriculumMap />}
         {view.name === "flashcards" && <Flashcards deck={view.deck} key={view.deck} />}
         {view.name === "trace" && <TraceCanvas />}
+        {view.name === "sentences" && <SentenceBuild week={view.week} key={view.week} />}
         {view.name === "dialogues" && <DialogueList />}
         {view.name === "dialogue" && <ChatDialogue id={view.id} key={view.id} />}
       </main>

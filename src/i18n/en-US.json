@@ -38,7 +38,24 @@
     "phase3": "Communication",
     "phase4": "Consolidation",
     "comingSoon": "This week's content is in production — the engine is ready for it.",
-    "start": "Study"
+    "start": "Study",
+    "actKana": "Flashcards",
+    "actTrace": "Writing",
+    "actChat": "Chats",
+    "actSentence": "Build sentences"
+  },
+  "sentence": {
+    "prompt": "Build this sentence in Japanese:",
+    "tapHint": "Tap the tiles in the right order",
+    "check": "Check",
+    "next": "Next",
+    "retry": "Try again",
+    "wrong": "Almost! The order isn't right. Try again.",
+    "done": "Sentences complete!",
+    "built": "sentences built",
+    "emptyTitle": "No sentences this week yet",
+    "emptySub": "This content is on the way.",
+    "backCurriculum": "Back to the path"
   },
   "flash": {
     "sessionDone": "Session complete! 🎉",

@@ -38,20 +38,29 @@ export default function ChatDialogue({ id }: { id: string }) {
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [showTranslations, setShowTranslations] = useState(false);
   const [readingShown, setReadingShown] = useState<Set<number>>(new Set());
+  const [typing, setTyping] = useState(false);
+  // quanto o personagem deve esperar antes de responder — o suficiente para
+  // o áudio da SUA última fala terminar de tocar
+  const pendingWaitRef = useRef(0);
   const listRef = useRef<HTMLDivElement>(null);
 
   const line = dialogue.lines[lineIdx];
   const finished = lineIdx >= dialogue.lines.length;
   const casual = register === "casual";
 
-  // falas do personagem entram sozinhas; as suas esperam a escolha
+  // falas do personagem entram sozinhas, com "digitando…" antes
   useEffect(() => {
     if (finished || !line || line.speaker === "you") return;
+    const base = msgs.length === 0 ? 400 : 900;
+    const wait = Math.max(base, pendingWaitRef.current);
+    pendingWaitRef.current = 0; // consome a espera do áudio do usuário
+    setTyping(true);
     const timer = setTimeout(() => {
+      setTyping(false);
       setMsgs((m) => [...m, { from: "them", ...line }]);
       if (ttsAvailable()) speak(textOf(line, casual, false));
       setLineIdx((i) => i + 1);
-    }, msgs.length === 0 ? 400 : 1100);
+    }, wait);
     return () => clearTimeout(timer);
     // `casual` nas deps: se o toggle mudar com fala pendente, o TTS sai no registro certo
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,16 +69,24 @@ export default function ChatDialogue({ id }: { id: string }) {
   useEffect(() => {
     // rola só a lista de mensagens — scrollIntoView rolava a página e enterrava o header
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [msgs, finished]);
+  }, [msgs, typing, finished]);
 
   useEffect(() => {
     if (finished) void completeDialogue(id);
   }, [finished, id, completeDialogue]);
 
+  /** Estima a duração da fala para o personagem esperar o áudio terminar. */
+  const speechMs = (text: string) => Math.min(6000, Math.max(1300, text.length * 150));
+
   const choose = (c: SpeechPair) => {
     setMsgs((m) => [...m, { from: "you", ...c }]);
     // sua mensagem também é falada — ouvir a própria fala fixa a pronúncia
-    if (ttsAvailable()) speak(textOf(c, casual, false));
+    const text = textOf(c, casual, false);
+    if (ttsAvailable()) {
+      speak(text);
+      // segura a resposta do personagem até o áudio da sua fala terminar
+      pendingWaitRef.current = speechMs(text);
+    }
     setLineIdx((i) => i + 1);
   };
 
@@ -169,6 +186,18 @@ export default function ChatDialogue({ id }: { id: string }) {
             </div>
           );
         })}
+
+        {/* "digitando…" enquanto o áudio da sua fala toca */}
+        {typing && (
+          <div className="flex items-end gap-2 pop-in">
+            <Avatar c={char} size={30} />
+            <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-white px-3.5 py-3 shadow-sm">
+              <span className="typing-dot" />
+              <span className="typing-dot" style={{ animationDelay: "0.15s" }} />
+              <span className="typing-dot" style={{ animationDelay: "0.3s" }} />
+            </div>
+          </div>
+        )}
 
         {finished && (
           <div className="pop-in pt-2 text-center">

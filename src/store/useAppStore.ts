@@ -8,6 +8,7 @@ export type View =
   | { name: "curriculum" }
   | { name: "flashcards"; deck: string }
   | { name: "trace" }
+  | { name: "sentences"; week: number }
   | { name: "dialogues" }
   | { name: "dialogue"; id: string };
 

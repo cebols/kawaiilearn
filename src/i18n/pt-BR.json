@@ -38,7 +38,24 @@
     "phase3": "Comunicação",
     "phase4": "Consolidação",
     "comingSoon": "Conteúdo desta semana em produção — o motor já está pronto para recebê-lo.",
-    "start": "Estudar"
+    "start": "Estudar",
+    "actKana": "Flashcards",
+    "actTrace": "Escrita",
+    "actChat": "Conversas",
+    "actSentence": "Montar frases"
+  },
+  "sentence": {
+    "prompt": "Monte esta frase em japonês:",
+    "tapHint": "Toque nas peças na ordem certa",
+    "check": "Conferir",
+    "next": "Próxima",
+    "retry": "Tentar de novo",
+    "wrong": "Quase! A ordem não está certa. Tente de novo.",
+    "done": "Frases concluídas!",
+    "built": "frases montadas",
+    "emptyTitle": "Sem frases nesta semana ainda",
+    "emptySub": "Esse conteúdo está a caminho.",
+    "backCurriculum": "Voltar à trilha"
   },
   "flash": {
     "sessionDone": "Sessão concluída! 🎉",

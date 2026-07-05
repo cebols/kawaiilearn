@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { HIRAGANA } from "../content/hiragana";
+import { kanaDeck } from "../content/decks";
 import type { Grade } from "ts-fsrs";
 import {
   ensureDeck,
@@ -27,20 +27,21 @@ export default function Flashcards({ deck }: { deck: string }) {
   /** modo prática: quiz sem remexer no agendamento FSRS */
   const [cram, setCram] = useState(false);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
+  const items = kanaDeck(deck).items;
 
   useEffect(() => {
     (async () => {
       await ensureDeck(
         deck,
-        HIRAGANA.map((h) => h.id),
+        items.map((h) => h.id),
         "reading"
       );
       setQueue(await buildQueue(deck, "reading"));
     })();
-  }, [deck]);
+  }, [deck, items]);
 
   const current = queue?.[idx];
-  const item = current ? HIRAGANA.find((h) => h.id === current.itemId) : undefined;
+  const item = current ? items.find((h) => h.id === current.itemId) : undefined;
 
   // ao chegar no fim da fila, recalcula quantos cards novos ainda restam no deck
   useEffect(() => {
