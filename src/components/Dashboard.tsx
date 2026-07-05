@@ -11,13 +11,15 @@ export default function Dashboard() {
   const reg = registerStats(VOCAB_W1);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const cast = castFor(profile?.crush ?? "haruto");
+  // status honesto: acúmulo de revisões = atrasado; domínio acima da projeção = adiantado
+  const paceStatus = stats.due > 25 ? "behind" : stats.mastered > pace.week * 10 ? "ahead" : "onTrack";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pop-in">
       <div className="rounded-3xl bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-bold text-stone-800">{t("home.greeting")} 🌸</h2>
         <p className="mt-1 text-sm text-stone-500">
-          {t("home.suggestedPace", { week: pace.week, day: pace.day })} · {t("home.onTrack")}
+          {t("home.suggestedPace", { week: pace.week, day: pace.day })} · {t(`home.${paceStatus}`)}
         </p>
         <p className="mt-1 text-xs text-stone-400">{t("home.freePace")}</p>
 

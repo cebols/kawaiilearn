@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { HIRAGANA } from "../content/hiragana";
 import type { Grade } from "ts-fsrs";
@@ -31,9 +31,12 @@ export default function Flashcards({ deck }: { deck: string }) {
   const current = queue?.[idx];
   const item = current ? HIRAGANA.find((h) => h.id === current.itemId) : undefined;
 
+  const grading = useRef(false);
   const grade = useCallback(
     async (rating: Grade) => {
-      if (!current) return;
+      // evita que toque duplo avalie o mesmo card 2x e pule o seguinte
+      if (!current || grading.current) return;
+      grading.current = true;
       const updated = await review(current, rating);
       setReviewed((n) => n + 1);
       setRevealed(false);
@@ -45,6 +48,7 @@ export default function Flashcards({ deck }: { deck: string }) {
         return next;
       });
       setIdx((i) => i + 1);
+      grading.current = false;
       void refresh();
     },
     [current, refresh]

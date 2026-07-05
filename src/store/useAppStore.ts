@@ -67,8 +67,9 @@ export const useAppStore = create<AppState>((set) => ({
 export function suggestedPace(startedAt: number | null): { week: number; day: number } {
   if (!startedAt) return { week: 1, day: 1 };
   const days = Math.floor((Date.now() - startedAt) / 86_400_000);
+  if (days >= 84) return { week: 12, day: 7 }; // fim da trilha: não cicla o dia
   return {
-    week: Math.min(Math.floor(days / 7) + 1, 12),
-    day: Math.min((days % 7) + 1, 7),
+    week: Math.floor(days / 7) + 1,
+    day: (days % 7) + 1,
   };
 }

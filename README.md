@@ -45,6 +45,10 @@ src/
 └── lib/            # TTS
 ```
 
+## Créditos
+
+- Dados de ordem de traços: [KanjiVG](https://kanjivg.tagaini.net/) © Ulrich Apel, licença [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+
 ## Roadmap
 
 - [x] Semana 1: hiragana (46), saudações com pares de registro, 3 diálogos

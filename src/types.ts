@@ -31,13 +31,19 @@ export interface VocabItem {
   note?: L10n;
 }
 
-export interface DialogueLine {
-  speaker: string; // character id, ou "you"
+/** Uma fala nos dois registros; *Kana = mesma fala sem kanji (para iniciantes). */
+export interface SpeechPair {
   polite: string;
   casual: string;
+  politeKana?: string;
+  casualKana?: string;
   translation: L10n;
+}
+
+export interface DialogueLine extends SpeechPair {
+  speaker: string; // character id, "crush" (resolvido pelo perfil) ou "you"
   /** opções de resposta quando speaker === "you" */
-  choices?: { polite: string; casual: string; translation: L10n }[];
+  choices?: SpeechPair[];
 }
 
 export interface Dialogue {

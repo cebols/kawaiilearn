@@ -64,7 +64,9 @@
     "selfGrade": "How did it go?",
     "gradeBad": "Needs practice",
     "gradeOk": "Almost there",
-    "gradeGood": "Nailed it!"
+    "gradeGood": "Nailed it!",
+    "animate": "Stroke order",
+    "attribution": "Strokes: KanjiVG © Ulrich Apel, CC BY-SA 3.0"
   },
   "dialogue": {
     "title": "Chats",
@@ -73,6 +75,9 @@
     "polite": "Polite 丁寧",
     "casual": "Casual くだけた",
     "showTranslation": "Show translation",
+    "kanjiMode": "Show kanji",
+    "play": "Listen",
+    "reading": "Show kana reading",
     "yourTurn": "Your turn — pick a reply:",
     "finished": "Conversation complete! 💬",
     "replay": "Replay",

@@ -5,13 +5,22 @@ import { resolveChar } from "../content/characters";
 import Avatar from "./Avatar";
 import { speak, ttsAvailable } from "../lib/tts";
 import { useAppStore } from "../store/useAppStore";
-import type { Register } from "../types";
+import type { Register, SpeechPair } from "../types";
 
-interface ChatMsg {
+interface ChatMsg extends SpeechPair {
   from: "them" | "you";
-  polite: string;
-  casual: string;
-  translation: { pt: string; en: string };
+}
+
+/** Texto exibido/falado de uma mensagem, conforme registro e modo kana. */
+function textOf(m: SpeechPair, casual: boolean, kanaMode: boolean): string {
+  if (casual) return kanaMode ? (m.casualKana ?? m.casual) : m.casual;
+  return kanaMode ? (m.politeKana ?? m.polite) : m.polite;
+}
+
+/** Leitura em kana quando o texto exibido contém kanji (senão null). */
+function kanaOf(m: SpeechPair, casual: boolean): string | null {
+  const kana = casual ? m.casualKana : m.politeKana;
+  return kana ?? null;
 }
 
 /** Conversa estilo app de mensagem, com toggle polido⇄casual em toda fala. */
@@ -23,10 +32,13 @@ export default function ChatDialogue({ id }: { id: string }) {
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
 
   const [register, setRegister] = useState<Register>(dialogue.register === "polite" ? "polite" : "casual");
+  // iniciantes começam sem kanji; o toggle mostra o texto "adulto" quando quiserem
+  const [kanaMode, setKanaMode] = useState(true);
   const [lineIdx, setLineIdx] = useState(0);
   const [msgs, setMsgs] = useState<ChatMsg[]>([]);
   const [showTranslations, setShowTranslations] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const [readingShown, setReadingShown] = useState<Set<number>>(new Set());
+  const listRef = useRef<HTMLDivElement>(null);
 
   const line = dialogue.lines[lineIdx];
   const finished = lineIdx >= dialogue.lines.length;
@@ -36,30 +48,43 @@ export default function ChatDialogue({ id }: { id: string }) {
   useEffect(() => {
     if (finished || !line || line.speaker === "you") return;
     const timer = setTimeout(() => {
-      setMsgs((m) => [...m, { from: "them", polite: line.polite, casual: line.casual, translation: line.translation }]);
-      if (ttsAvailable()) speak(casual ? line.casual : line.polite);
+      setMsgs((m) => [...m, { from: "them", ...line }]);
+      if (ttsAvailable()) speak(textOf(line, casual, false));
       setLineIdx((i) => i + 1);
     }, msgs.length === 0 ? 400 : 1100);
     return () => clearTimeout(timer);
+    // `casual` nas deps: se o toggle mudar com fala pendente, o TTS sai no registro certo
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lineIdx, finished]);
+  }, [lineIdx, finished, casual]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // rola só a lista de mensagens — scrollIntoView rolava a página e enterrava o header
+    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, finished]);
 
-  const choose = (c: { polite: string; casual: string; translation: { pt: string; en: string } }) => {
+  const choose = (c: SpeechPair) => {
     setMsgs((m) => [...m, { from: "you", ...c }]);
+    // sua mensagem também é falada — ouvir a própria fala fixa a pronúncia
+    if (ttsAvailable()) speak(textOf(c, casual, false));
     setLineIdx((i) => i + 1);
   };
 
+  const toggleReading = (i: number) =>
+    setReadingShown((s) => {
+      const next = new Set(s);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+
   const replay = () => {
     setMsgs([]);
+    setReadingShown(new Set());
     setLineIdx(0);
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col pop-in" style={{ height: "calc(100dvh - 130px)" }}>
+    <div className="mx-auto flex max-w-md flex-col pop-in" style={{ height: "calc(100dvh - 200px)", minHeight: 420 }}>
       {/* header do chat */}
       <div className="flex items-center gap-3 rounded-t-3xl bg-white p-4 shadow-sm">
         <button onClick={() => go({ name: "dialogues" })} className="text-stone-400 hover:text-stone-600">
@@ -77,12 +102,14 @@ export default function ChatDialogue({ id }: { id: string }) {
           <button
             onClick={() => setRegister("polite")}
             className={`rounded-full px-2.5 py-1 transition ${!casual ? "bg-indigo-500 text-white" : "text-stone-400"}`}
+            title={t("dialogue.polite")}
           >
             🎩
           </button>
           <button
             onClick={() => setRegister("casual")}
             className={`rounded-full px-2.5 py-1 transition ${casual ? "bg-sakura-500 text-white" : "text-stone-400"}`}
+            title={t("dialogue.casual")}
           >
             🎉
           </button>
@@ -90,28 +117,49 @@ export default function ChatDialogue({ id }: { id: string }) {
       </div>
 
       {/* mensagens */}
-      <div className="flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-sakura-50 to-violet-50 p-4">
+      <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-sakura-50 to-violet-50 p-4">
         {msgs.map((m, i) => {
-          const text = casual ? m.casual : m.polite;
+          const text = textOf(m, casual, kanaMode);
+          const reading = !kanaMode ? kanaOf(m, casual) : null;
+          const you = m.from === "you";
           return (
-            <div key={i} className={`flex items-end gap-2 pop-in ${m.from === "you" ? "flex-row-reverse" : ""}`}>
-              {m.from === "them" && <Avatar c={char} size={30} />}
-              <div className="max-w-[75%]">
-                <button
-                  onClick={() => ttsAvailable() && speak(text)}
-                  className={`jp rounded-2xl px-3.5 py-2 text-left text-sm shadow-sm transition ${
-                    m.from === "you"
-                      ? "rounded-br-sm bg-sakura-500 text-white"
-                      : "rounded-bl-sm bg-white text-stone-800"
+            <div key={i} className={`flex items-end gap-2 pop-in ${you ? "flex-row-reverse" : ""}`}>
+              {!you && <Avatar c={char} size={30} />}
+              <div className="max-w-[78%]">
+                <div
+                  className={`jp rounded-2xl px-3.5 py-2 text-left text-sm shadow-sm ${
+                    you ? "rounded-br-sm bg-sakura-500 text-white" : "rounded-bl-sm bg-white text-stone-800"
                   }`}
-                  title="🔊"
                 >
                   {text}
-                </button>
-                {showTranslations && (
-                  <p className={`mt-0.5 text-[10px] text-stone-400 ${m.from === "you" ? "text-right" : ""}`}>
-                    {m.translation[lang]}
-                  </p>
+                </div>
+                <div className={`mt-1 flex items-center gap-1.5 ${you ? "flex-row-reverse" : ""}`}>
+                  {ttsAvailable() && (
+                    <button
+                      onClick={() => speak(textOf(m, casual, false))}
+                      className="rounded-full bg-white px-2 py-0.5 text-[10px] text-violet-600 shadow-sm transition hover:bg-violet-100"
+                      title={t("dialogue.play")}
+                    >
+                      🔊
+                    </button>
+                  )}
+                  {reading && (
+                    <button
+                      onClick={() => toggleReading(i)}
+                      className={`jp rounded-full px-2 py-0.5 text-[10px] shadow-sm transition ${
+                        readingShown.has(i) ? "bg-amber-400 text-white" : "bg-white text-amber-600 hover:bg-amber-100"
+                      }`}
+                      title={t("dialogue.reading")}
+                    >
+                      あ
+                    </button>
+                  )}
+                  {showTranslations && (
+                    <span className={`text-[10px] text-stone-400 ${you ? "text-right" : ""}`}>{m.translation[lang]}</span>
+                  )}
+                </div>
+                {reading && readingShown.has(i) && (
+                  <p className={`jp pop-in mt-0.5 text-[11px] text-amber-700 ${you ? "text-right" : ""}`}>{reading}</p>
                 )}
               </div>
             </div>
@@ -129,20 +177,30 @@ export default function ChatDialogue({ id }: { id: string }) {
             </button>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       {/* área de escolha */}
       <div className="rounded-b-3xl bg-white p-3 shadow-sm">
-        <label className="mb-2 flex items-center gap-1.5 px-1 text-[10px] text-stone-400">
-          <input
-            type="checkbox"
-            checked={showTranslations}
-            onChange={(e) => setShowTranslations(e.target.checked)}
-            className="accent-pink-500"
-          />
-          {t("dialogue.showTranslation")}
-        </label>
+        <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1 px-1 text-[10px] text-stone-400">
+          <label className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={showTranslations}
+              onChange={(e) => setShowTranslations(e.target.checked)}
+              className="accent-pink-500"
+            />
+            {t("dialogue.showTranslation")}
+          </label>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="checkbox"
+              checked={!kanaMode}
+              onChange={(e) => setKanaMode(!e.target.checked)}
+              className="accent-pink-500"
+            />
+            {t("dialogue.kanjiMode")}
+          </label>
+        </div>
         {!finished && line?.speaker === "you" && line.choices ? (
           <div className="space-y-2">
             <p className="px-1 text-[10px] font-bold uppercase tracking-wide text-stone-400">{t("dialogue.yourTurn")}</p>
@@ -152,7 +210,7 @@ export default function ChatDialogue({ id }: { id: string }) {
                 onClick={() => choose(c)}
                 className="jp w-full rounded-2xl border border-sakura-200 bg-sakura-50 px-3.5 py-2.5 text-left text-sm text-stone-700 transition hover:border-sakura-400 hover:bg-sakura-100"
               >
-                {casual ? c.casual : c.polite}
+                {textOf(c, casual, kanaMode)}
                 <span className="mt-0.5 block font-sans text-[10px] text-stone-400">{c.translation[lang]}</span>
               </button>
             ))}

@@ -25,7 +25,7 @@ export default function App() {
       <header className="sticky top-0 z-10 border-b border-sakura-100 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <button onClick={() => go({ name: "home" })} className="text-left">
-            <h1 className="text-lg font-extrabold text-sakura-600">
+            <h1 className="whitespace-nowrap text-lg font-extrabold text-sakura-600">
               🌸 KawaiiLearn <span className="jp text-sm font-normal text-stone-400">日本語</span>
             </h1>
             <p className="hidden text-[10px] text-stone-400 sm:block">{t("app.tagline")}</p>

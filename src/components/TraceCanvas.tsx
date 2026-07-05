@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { HIRAGANA } from "../content/hiragana";
+import STROKES from "../content/strokes/hiragana.json";
 import { speak, ttsAvailable } from "../lib/tts";
 
 const SIZE = 280;
+/** viewBox padrão do KanjiVG */
+const VB = 109;
+
+type StrokeData = Record<string, { p: string[]; n: number[][] }>;
+const strokeData: StrokeData = STROKES;
 
 /**
- * Prática kinestésica: traçar o kana por cima do modelo esmaecido.
- * Funciona com mouse e toque (celular/tablet = dedo, a melhor forma).
+ * Prática kinestésica: modelo com ordem de traços do KanjiVG
+ * (números + seta de direção em cada traço, com animação), e o
+ * usuário traça por cima com dedo/mouse.
  */
 export default function TraceCanvas() {
   const { t } = useTranslation();
@@ -15,7 +22,9 @@ export default function TraceCanvas() {
   const drawing = useRef(false);
   const [idx, setIdx] = useState(0);
   const [hasInk, setHasInk] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
   const item = HIRAGANA[idx];
+  const strokes = strokeData[item.kana];
 
   const clear = () => {
     const ctx = canvasRef.current?.getContext("2d");
@@ -23,7 +32,10 @@ export default function TraceCanvas() {
     setHasInk(false);
   };
 
-  useEffect(clear, [idx]);
+  useEffect(() => {
+    clear();
+    setAnimKey((k) => k + 1); // reanima a ordem dos traços ao trocar de kana
+  }, [idx]);
 
   const pos = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -75,21 +87,77 @@ export default function TraceCanvas() {
               🔊
             </button>
           )}
+          <button
+            onClick={() => setAnimKey((k) => k + 1)}
+            className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-200"
+          >
+            ▶ {t("trace.animate")}
+          </button>
         </div>
 
-        <div className="relative mx-auto touch-none" style={{ width: SIZE, height: SIZE, maxWidth: "100%" }}>
-          {/* grade de caligrafia */}
+        {/* aspect-ratio 1:1 evita distorção em telas estreitas */}
+        <div className="relative mx-auto touch-none" style={{ width: "min(280px, 100%)", aspectRatio: "1 / 1" }}>
           <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-stone-200">
             <div className="absolute left-1/2 top-0 h-full w-px bg-stone-100" />
             <div className="absolute left-0 top-1/2 h-px w-full bg-stone-100" />
           </div>
-          {/* modelo esmaecido */}
-          <span
-            className="jp pointer-events-none absolute inset-0 flex select-none items-center justify-center text-stone-200"
-            style={{ fontSize: SIZE * 0.72 }}
-          >
-            {item.kana}
-          </span>
+
+          {/* modelo KanjiVG: traços esmaecidos + números de ordem + seta de direção */}
+          {strokes && (
+            <svg key={animKey} viewBox={`0 0 ${VB} ${VB}`} className="pointer-events-none absolute inset-0 h-full w-full">
+              <defs>
+                <marker id="dir" viewBox="0 0 6 6" refX="3" refY="3" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 1 1 L 5 3 L 1 5 Z" fill="#f472b6" />
+                </marker>
+              </defs>
+              {strokes.p.map((d, i) => (
+                <g key={i}>
+                  {/* traço base esmaecido */}
+                  <path d={d} fill="none" stroke="#e7e5e4" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                  {/* animação da ordem: cada traço se desenha na sua vez */}
+                  <path
+                    d={d}
+                    fill="none"
+                    stroke="#fbbf24"
+                    strokeWidth="7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    pathLength={1}
+                    strokeDasharray={1}
+                    strokeDashoffset={1}
+                    style={{ animation: `draw-stroke 0.7s ease-out ${i * 0.75}s forwards` }}
+                  />
+                  {/* setinha de direção no início do traço (orientação automática) */}
+                  <path
+                    d={d}
+                    fill="none"
+                    stroke="transparent"
+                    strokeWidth="0.1"
+                    markerStart="url(#dir)"
+                  />
+                  {/* número da ordem */}
+                  {strokes.n[i] && (
+                    <text
+                      x={strokes.n[i][0]}
+                      y={strokes.n[i][1]}
+                      fontSize="9"
+                      fontWeight="bold"
+                      fill="#db2777"
+                    >
+                      {i + 1}
+                    </text>
+                  )}
+                </g>
+              ))}
+            </svg>
+          )}
+          {/* fallback para caracteres ainda sem dados de traço */}
+          {!strokes && (
+            <span className="jp pointer-events-none absolute inset-0 flex select-none items-center justify-center text-stone-200" style={{ fontSize: "min(202px, 58vw)" }}>
+              {item.kana}
+            </span>
+          )}
+
           <canvas
             ref={canvasRef}
             width={SIZE}
@@ -99,6 +167,7 @@ export default function TraceCanvas() {
             onPointerMove={move}
             onPointerUp={end}
             onPointerLeave={end}
+            onPointerCancel={end}
           />
         </div>
 
@@ -128,6 +197,7 @@ export default function TraceCanvas() {
             {t("trace.selfGrade")} — {t("trace.gradeGood")} 🌸
           </p>
         )}
+        <p className="mt-3 text-[9px] text-stone-300">{t("trace.attribution")}</p>
       </div>
 
       {/* seletor rápido */}

@@ -64,7 +64,9 @@
     "selfGrade": "Como foi?",
     "gradeBad": "Preciso praticar",
     "gradeOk": "Quase lá",
-    "gradeGood": "Mandei bem!"
+    "gradeGood": "Mandei bem!",
+    "animate": "Ordem dos traços",
+    "attribution": "Traços: KanjiVG © Ulrich Apel, CC BY-SA 3.0"
   },
   "dialogue": {
     "title": "Conversas",
@@ -73,6 +75,9 @@
     "polite": "Polido 丁寧",
     "casual": "Casual くだけた",
     "showTranslation": "Ver tradução",
+    "kanjiMode": "Mostrar kanji",
+    "play": "Ouvir",
+    "reading": "Ver leitura em kana",
     "yourTurn": "Sua vez — escolha a resposta:",
     "finished": "Conversa concluída! 💬",
     "replay": "Repetir",

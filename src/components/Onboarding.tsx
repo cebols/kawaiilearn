@@ -9,8 +9,9 @@ import Avatar from "./Avatar";
  * (com a dica de pronome japonês correspondente) e quem é a sua paquera.
  */
 export default function Onboarding() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { saveProfile } = useAppStore();
+  const toggleLang = () => i18n.changeLanguage(i18n.language.startsWith("pt") ? "en-US" : "pt-BR");
   const [gender, setGender] = useState<Gender | null>(null);
   const [crush, setCrush] = useState<CrushId | null>(null);
 
@@ -23,6 +24,15 @@ export default function Onboarding() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm">
       <div className="pop-in max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-xl">
+        {/* o modal cobre o header, então o troca-idioma precisa existir aqui também */}
+        <div className="flex justify-end">
+          <button
+            onClick={toggleLang}
+            className="rounded-full bg-stone-100 px-3 py-1 text-[10px] font-semibold text-stone-500 transition hover:bg-stone-200"
+          >
+            🌐 {t("lang.switch")}
+          </button>
+        </div>
         <h2 className="text-center text-xl font-extrabold text-stone-800">🌸 {t("onboarding.title")}</h2>
         <p className="mt-1 text-center text-xs text-stone-500">{t("onboarding.subtitle")}</p>
 

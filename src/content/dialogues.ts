@@ -3,6 +3,8 @@ import type { Dialogue } from "../types";
 /**
  * Diálogos da Semana 1. Cada linha existe nos DOIS registros —
  * o toggle polido⇄casual funciona em qualquer fala, mostrando o mapeamento.
+ * politeKana/casualKana: a mesma fala 100% em kana, para quem ainda não lê kanji
+ * (só presente quando difere do texto com kanji).
  */
 export const DIALOGUES_W1: Dialogue[] = [
   {
@@ -29,12 +31,15 @@ export const DIALOGUES_W1: Dialogue[] = [
         choices: [
           {
             polite: "はじめまして。よろしくお願いします。",
+            politeKana: "はじめまして。よろしくおねがいします。",
             casual: "はじめまして！よろしくね。",
             translation: { pt: "Prazer! Conto com você.", en: "Nice to meet you! Looking forward." },
           },
           {
             polite: "こんにちは。お元気ですか。",
+            politeKana: "こんにちは。おげんきですか。",
             casual: "こんにちは！元気？",
+            casualKana: "こんにちは！げんき？",
             translation: { pt: "Olá! Tudo bem?", en: "Hello! How are you?" },
           },
         ],
@@ -42,7 +47,9 @@ export const DIALOGUES_W1: Dialogue[] = [
       {
         speaker: "yuki",
         polite: "元気です！日本語の勉強、頑張ってくださいね。",
+        politeKana: "げんきです！にほんごのべんきょう、がんばってくださいね。",
         casual: "元気だよ！日本語、頑張ってね〜",
+        casualKana: "げんきだよ！にほんご、がんばってね〜",
         translation: { pt: "Tô bem! Boa sorte com o japonês, hein!", en: "I'm good! Good luck with your Japanese!" },
       },
       {
@@ -58,7 +65,9 @@ export const DIALOGUES_W1: Dialogue[] = [
           },
           {
             polite: "わかりました。お願いします！",
+            politeKana: "わかりました。おねがいします！",
             casual: "わかった。お願い！",
+            casualKana: "わかった。おねがい！",
             translation: { pt: "Entendi. Por favor (me ajuda)!", en: "Got it. Please (help me)!" },
           },
         ],
@@ -66,7 +75,9 @@ export const DIALOGUES_W1: Dialogue[] = [
       {
         speaker: "yuki",
         polite: "じゃあ、また来週！",
-        casual: "じゃ、またね〜！",
+        politeKana: "じゃあ、またらいしゅう！",
+        casual: "じゃ、また来週ね〜！",
+        casualKana: "じゃ、またらいしゅうね〜！",
         translation: { pt: "Então até semana que vem!", en: "See you next week then!" },
       },
     ],
@@ -84,7 +95,8 @@ export const DIALOGUES_W1: Dialogue[] = [
       {
         speaker: "kenji",
         polite: "おはようございます。けんじです。よろしくお願いします。",
-        casual: "おはよう。けんじね。よろしく。",
+        politeKana: "おはようございます。けんじです。よろしくおねがいします。",
+        casual: "おはよう。けんじだよ。よろしく。",
         translation: { pt: "Bom dia. Sou o Kenji. Prazer, conto com você.", en: "Good morning. I'm Kenji. Nice to work with you." },
       },
       {
@@ -95,12 +107,15 @@ export const DIALOGUES_W1: Dialogue[] = [
         choices: [
           {
             polite: "おはようございます！よろしくお願いします。",
+            politeKana: "おはようございます！よろしくおねがいします。",
             casual: "おはよう！よろしくね。",
             translation: { pt: "Bom dia! Prazer, conto com você.", en: "Good morning! Nice to work with you too." },
           },
           {
             polite: "はじめまして。すみません、日本語はまだまだです…",
+            politeKana: "はじめまして。すみません、にほんごはまだまだです…",
             casual: "はじめまして。ごめん、日本語まだまだ…",
+            casualKana: "はじめまして。ごめん、にほんごまだまだ…",
             translation: { pt: "Prazer. Desculpa, meu japonês ainda é fraco…", en: "Nice to meet you. Sorry, my Japanese is still shaky…" },
           },
         ],
@@ -108,7 +123,9 @@ export const DIALOGUES_W1: Dialogue[] = [
       {
         speaker: "kenji",
         polite: "大丈夫ですよ。わからないときは、聞いてください。",
+        politeKana: "だいじょうぶですよ。わからないときは、きいてください。",
         casual: "大丈夫だよ。わかんないときは、聞いて。",
+        casualKana: "だいじょうぶだよ。わかんないときは、きいて。",
         translation: { pt: "Tranquilo. Quando não entender, pergunte.", en: "No worries. When you don't understand, just ask." },
       },
       {
@@ -127,7 +144,9 @@ export const DIALOGUES_W1: Dialogue[] = [
       {
         speaker: "kenji",
         polite: "では、また後で。",
+        politeKana: "では、またあとで。",
         casual: "じゃ、また後で。",
+        casualKana: "じゃ、またあとで。",
         translation: { pt: "Então, até mais tarde.", en: "Well then, see you later." },
       },
     ],
@@ -156,7 +175,9 @@ export const DIALOGUES_W1: Dialogue[] = [
         choices: [
           {
             polite: "はい、お願いします！",
+            politeKana: "はい、おねがいします！",
             casual: "うん、お願い！",
+            casualKana: "うん、おねがい！",
             translation: { pt: "Sim, por favor!", en: "Yes, please!" },
           },
           {
@@ -169,7 +190,9 @@ export const DIALOGUES_W1: Dialogue[] = [
       {
         speaker: "crush",
         polite: "日本語、上手ですね。",
+        politeKana: "にほんご、じょうずですね。",
         casual: "日本語うまいね！",
+        casualKana: "にほんごうまいね！",
         translation: { pt: "Seu japonês tá bom, hein!", en: "Your Japanese is getting good!" },
       },
       {
@@ -192,8 +215,10 @@ export const DIALOGUES_W1: Dialogue[] = [
       },
       {
         speaker: "crush",
-        polite: "コーヒー、どうぞ。またお願いします。",
+        polite: "コーヒー、どうぞ。また来てくださいね。",
+        politeKana: "コーヒー、どうぞ。またきてくださいね。",
         casual: "コーヒーどうぞ。また来てね。",
+        casualKana: "コーヒーどうぞ。またきてね。",
         translation: { pt: "Seu café. Volta sempre, tá?", en: "Here's your coffee. Come again, okay?" },
       },
     ],
