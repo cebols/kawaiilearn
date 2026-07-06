@@ -13,7 +13,7 @@ function shuffled<T>(arr: T[], seed: string): T[] {
 /** Construção de frase: monte a frase na ordem certa tocando nas peças. */
 export default function SentenceBuild({ week }: { week: number }) {
   const { t, i18n } = useTranslation();
-  const { go } = useAppStore();
+  const { go, recordActivity } = useAppStore();
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const items = useMemo(() => sentencesForWeek(week), [week]);
 
@@ -77,6 +77,7 @@ export default function SentenceBuild({ week }: { week: number }) {
     setStatus(correct ? "correct" : "wrong");
     if (correct) {
       setDone((d) => d + 1);
+      void recordActivity("sentences");
       if (ttsAvailable()) speak(item.tiles.join(""));
     }
   };

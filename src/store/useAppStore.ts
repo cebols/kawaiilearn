@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { getKV, setKV } from "../db/db";
 import { deckStats, computeStreak, type DeckStats } from "../srs/engine";
+import { getDaily, persistDaily, type DailyProgress } from "../lib/daily";
 import type { CrushId } from "../content/characters";
 
 export type View =
@@ -29,11 +30,14 @@ interface AppState {
   profile: Profile | null | undefined;
   /** ids de diálogos já concluídos — para marcar ✓ e destacar os novos */
   completedDialogues: Set<string>;
+  /** atividades feitas hoje (cards, conversas, frases) */
+  daily: DailyProgress;
   go: (view: View) => void;
   refresh: () => Promise<void>;
   init: () => Promise<void>;
   saveProfile: (profile: Profile) => Promise<void>;
   completeDialogue: (id: string) => Promise<void>;
+  recordActivity: (field: keyof DailyProgress) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -43,8 +47,11 @@ export const useAppStore = create<AppState>((set, get) => ({
   startedAt: null,
   profile: undefined,
   completedDialogues: new Set(),
+  daily: { cards: 0, convos: 0, sentences: 0 },
   go: (view) => set({ view }),
   refresh: async () => {
+    // `daily` NÃO é relido aqui: é autoritativo em memória (recordActivity),
+    // senão uma leitura stale do banco sobrescreveria incrementos recentes.
     const [stats, streak] = await Promise.all([deckStats(), computeStreak()]);
     set({ stats, streak });
   },
@@ -54,11 +61,12 @@ export const useAppStore = create<AppState>((set, get) => ({
       started = String(Date.now());
       await setKV("startedAt", started);
     }
-    const [stats, streak, rawProfile, rawDone] = await Promise.all([
+    const [stats, streak, rawProfile, rawDone, daily] = await Promise.all([
       deckStats(),
       computeStreak(),
       getKV("profile"),
       getKV("completedDialogues"),
+      getDaily(),
     ]);
     set({
       startedAt: Number(started),
@@ -66,7 +74,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       streak,
       profile: rawProfile ? (JSON.parse(rawProfile) as Profile) : null,
       completedDialogues: new Set(rawDone ? (JSON.parse(rawDone) as string[]) : []),
+      daily,
     });
+  },
+  recordActivity: async (field) => {
+    // in-memory é autoritativo e síncrono → sem corrida entre atividades seguidas
+    const daily = { ...get().daily, [field]: get().daily[field] + 1 };
+    set({ daily });
+    await persistDaily(daily);
   },
   saveProfile: async (profile) => {
     await setKV("profile", JSON.stringify(profile));
@@ -85,7 +100,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 export function suggestedPace(startedAt: number | null): { week: number; day: number } {
   if (!startedAt) return { week: 1, day: 1 };
   const days = Math.floor((Date.now() - startedAt) / 86_400_000);
-  if (days >= 84) return { week: 12, day: 7 }; // fim da trilha: não cicla o dia
+  if (days >= 140) return { week: 20, day: 7 }; // fim da trilha de 20 semanas
   return {
     week: Math.floor(days / 7) + 1,
     day: (days % 7) + 1,

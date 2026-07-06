@@ -26,7 +26,8 @@ function kanaOf(m: SpeechPair, casual: boolean): string | null {
 /** Conversa estilo app de mensagem, com toggle polido⇄casual em toda fala. */
 export default function ChatDialogue({ id }: { id: string }) {
   const { t, i18n } = useTranslation();
-  const { go, profile, completeDialogue } = useAppStore();
+  const { go, profile, completeDialogue, recordActivity } = useAppStore();
+  const recordedRef = useRef(false);
   const dialogue = DIALOGUES.find((d) => d.id === id)!;
   const char = resolveChar(dialogue.characterId, profile?.crush ?? "haruto");
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
@@ -72,8 +73,15 @@ export default function ChatDialogue({ id }: { id: string }) {
   }, [msgs, typing, finished]);
 
   useEffect(() => {
-    if (finished) void completeDialogue(id);
-  }, [finished, id, completeDialogue]);
+    if (finished) {
+      void completeDialogue(id);
+      // conta uma conversa por sessão aberta (não a cada replay/re-render)
+      if (!recordedRef.current) {
+        recordedRef.current = true;
+        void recordActivity("convos");
+      }
+    }
+  }, [finished, id, completeDialogue, recordActivity]);
 
   /** Estima a duração da fala para o personagem esperar o áudio terminar. */
   const speechMs = (text: string) => Math.min(6000, Math.max(1300, text.length * 150));

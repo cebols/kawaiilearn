@@ -64,6 +64,9 @@ export interface Week {
   num: number;
   title: L10n;
   goals: L10n[];
-  phase: 1 | 2 | 3 | 4;
+  /** 1–6: Fundação, Estrutura, Comunicação, Consolidação, Expansão (N4), Fluência */
+  phase: number;
+  /** faixa aproximada de dificuldade, para a curva de aprendizado */
+  level: "N5-" | "N5" | "N5+" | "N4-" | "N4";
   available: boolean;
 }

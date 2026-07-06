@@ -2,15 +2,17 @@ import { useTranslation } from "react-i18next";
 import { useAppStore, suggestedPace } from "../store/useAppStore";
 import { VOCAB_W1, registerStats } from "../content/vocab";
 import { castFor } from "../content/characters";
+import { DAILY_GOAL, dailyPercent } from "../lib/daily";
 import Avatar from "./Avatar";
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
-  const { stats, streak, startedAt, go, profile } = useAppStore();
+  const { stats, streak, startedAt, go, profile, daily } = useAppStore();
   const pace = suggestedPace(startedAt);
   const reg = registerStats(VOCAB_W1);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const cast = castFor(profile?.crush ?? "haruto");
+  const pct = dailyPercent(daily);
   // status honesto: acúmulo de revisões = atrasado; domínio acima da projeção = adiantado
   const paceStatus = stats.due > 25 ? "behind" : stats.mastered > pace.week * 10 ? "ahead" : "onTrack";
 
@@ -48,6 +50,28 @@ export default function Dashboard() {
           >
             💬 {t("home.dialogueAction")}
           </button>
+        </div>
+      </div>
+
+      {/* meta do dia: barra de progresso + checklist */}
+      <div className="rounded-3xl bg-white p-6 shadow-sm">
+        <div className="flex items-baseline justify-between">
+          <h3 className="font-bold text-stone-700">{t("home.dailyGoal")}</h3>
+          <span className="text-sm font-bold text-sakura-600">{pct}%</span>
+        </div>
+        <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-100">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-sakura-400 to-sakura-600 transition-all duration-500"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <p className="mt-2 text-xs text-stone-400">
+          {pct >= 100 ? t("home.goalDone") : t("home.goalHint")}
+        </p>
+        <div className="mt-4 space-y-2">
+          <GoalRow icon="🎴" label={t("home.goalCards")} done={daily.cards} goal={DAILY_GOAL.cards} onClick={() => go({ name: "flashcards", deck: "hiragana" })} remainLabel={t("home.remaining")} doneLabel={t("home.completed")} />
+          <GoalRow icon="🧩" label={t("home.goalSentences")} done={daily.sentences} goal={DAILY_GOAL.sentences} onClick={() => go({ name: "curriculum" })} remainLabel={t("home.remaining")} doneLabel={t("home.completed")} />
+          <GoalRow icon="💬" label={t("home.goalConvos")} done={daily.convos} goal={DAILY_GOAL.convos} onClick={() => go({ name: "dialogues" })} remainLabel={t("home.remaining")} doneLabel={t("home.completed")} />
         </div>
       </div>
 
@@ -107,5 +131,45 @@ function Stat({ value, label, color }: { value: number; label: string; color: st
       <p className={`text-3xl font-extrabold ${color}`}>{value}</p>
       <p className="text-xs text-stone-500">{label}</p>
     </div>
+  );
+}
+
+function GoalRow({
+  icon,
+  label,
+  done,
+  goal,
+  onClick,
+  remainLabel,
+  doneLabel,
+}: {
+  icon: string;
+  label: string;
+  done: number;
+  goal: number;
+  onClick: () => void;
+  remainLabel: string;
+  doneLabel: string;
+}) {
+  const complete = done >= goal;
+  const remaining = Math.max(0, goal - done);
+  return (
+    <button
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition ${
+        complete ? "border-emerald-100 bg-emerald-50/50" : "border-stone-100 hover:border-sakura-200 hover:bg-sakura-50"
+      }`}
+    >
+      <span className="text-lg">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-stone-700">{label}</p>
+        <p className="text-xs text-stone-400">
+          {complete ? `✓ ${doneLabel}` : `${remaining} ${remainLabel}`}
+        </p>
+      </div>
+      <span className={`text-sm font-bold tabular-nums ${complete ? "text-emerald-600" : "text-stone-400"}`}>
+        {Math.min(done, goal)}/{goal}
+      </span>
+    </button>
   );
 }

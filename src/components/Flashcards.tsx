@@ -18,7 +18,7 @@ import { useAppStore } from "../store/useAppStore";
 /** Sessão de flashcards SRS do deck de hiragana (leitura). */
 export default function Flashcards({ deck }: { deck: string }) {
   const { t, i18n } = useTranslation();
-  const { go, refresh } = useAppStore();
+  const { go, refresh, recordActivity } = useAppStore();
   const [queue, setQueue] = useState<StoredCard[] | null>(null);
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -67,9 +67,12 @@ export default function Flashcards({ deck }: { deck: string }) {
       });
       setIdx((i) => i + 1);
       grading.current = false;
-      if (!cram) void refresh();
+      if (!cram) {
+        void recordActivity("cards");
+        void refresh();
+      }
     },
-    [current, cram, refresh]
+    [current, cram, refresh, recordActivity]
   );
 
   const loadMore = useCallback(async () => {
