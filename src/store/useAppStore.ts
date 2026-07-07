@@ -11,7 +11,8 @@ export type View =
   | { name: "trace" }
   | { name: "sentences"; week: number }
   | { name: "dialogues" }
-  | { name: "dialogue"; id: string };
+  | { name: "dialogue"; id: string }
+  | { name: "weekTest"; week: number };
 
 /** Como o app se refere ao usuário — também define a dica de pronome (私/僕/あたし). */
 export type Gender = "female" | "male" | "neutral";
@@ -32,12 +33,15 @@ interface AppState {
   completedDialogues: Set<string>;
   /** atividades feitas hoje (cards, conversas, frases) */
   daily: DailyProgress;
+  /** semana ATUAL do currículo — sobe só quando você passa no teste da semana */
+  currentWeek: number;
   go: (view: View) => void;
   refresh: () => Promise<void>;
   init: () => Promise<void>;
   saveProfile: (profile: Profile) => Promise<void>;
   completeDialogue: (id: string) => Promise<void>;
   recordActivity: (field: keyof DailyProgress) => Promise<void>;
+  advanceWeek: () => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -48,6 +52,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   profile: undefined,
   completedDialogues: new Set(),
   daily: { cards: 0, convos: 0, sentences: 0 },
+  currentWeek: 1,
   go: (view) => set({ view }),
   refresh: async () => {
     // `daily` NÃO é relido aqui: é autoritativo em memória (recordActivity),
@@ -61,12 +66,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       started = String(Date.now());
       await setKV("startedAt", started);
     }
-    const [stats, streak, rawProfile, rawDone, daily] = await Promise.all([
+    const [stats, streak, rawProfile, rawDone, daily, rawWeek] = await Promise.all([
       deckStats(),
       computeStreak(),
       getKV("profile"),
       getKV("completedDialogues"),
       getDaily(),
+      getKV("currentWeek"),
     ]);
     set({
       startedAt: Number(started),
@@ -75,7 +81,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       profile: rawProfile ? (JSON.parse(rawProfile) as Profile) : null,
       completedDialogues: new Set(rawDone ? (JSON.parse(rawDone) as string[]) : []),
       daily,
+      currentWeek: rawWeek ? Math.max(1, Math.min(20, Number(rawWeek))) : 1,
     });
+  },
+  advanceWeek: async () => {
+    const next = Math.min(20, get().currentWeek + 1);
+    await setKV("currentWeek", String(next));
+    set({ currentWeek: next });
   },
   recordActivity: async (field) => {
     // in-memory é autoritativo e síncrono → sem corrida entre atividades seguidas

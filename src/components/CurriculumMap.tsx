@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { WEEKS, PHASES } from "../content/curriculum";
 import { sentencesForWeek } from "../content/sentences";
-import { useAppStore, suggestedPace, type View } from "../store/useAppStore";
+import { testAvailable } from "../content/weekTests";
+import { useAppStore, type View } from "../store/useAppStore";
 
 interface Activity {
   icon: string;
@@ -29,18 +30,19 @@ function weekActivities(week: number): Activity[] {
 
 export default function CurriculumMap() {
   const { t, i18n } = useTranslation();
-  const { startedAt, go } = useAppStore();
-  const pace = suggestedPace(startedAt);
+  const { currentWeek, go } = useAppStore();
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
 
   return (
     <div className="mx-auto max-w-md pop-in">
       <h2 className="text-2xl font-bold text-stone-800">{t("curriculum.title")}</h2>
-      <p className="mt-1 text-sm text-stone-500">{t("curriculum.subtitle")}</p>
+      <p className="mt-1 text-sm text-stone-500">{t("curriculum.subtitleMastery")}</p>
 
       <ol className="mt-6 space-y-3">
         {WEEKS.map((w, i) => {
-          const isSuggested = w.num === pace.week;
+          const isCurrent = w.num === currentWeek;
+          const isCompleted = w.num < currentWeek;
+          const isFuture = w.num > currentWeek;
           const acts = weekActivities(w.num);
           const phase = PHASES[w.phase];
           const newPhase = i === 0 || WEEKS[i - 1].phase !== w.phase;
@@ -56,9 +58,18 @@ export default function CurriculumMap() {
                   <span className="h-px flex-1 bg-stone-100" />
                 </div>
               )}
-              <div className={`rounded-2xl bg-white p-4 shadow-sm transition ${isSuggested ? "ring-2 ring-sakura-400" : ""}`}>
+              <div
+                className={`rounded-2xl p-4 shadow-sm transition ${
+                  isCurrent
+                    ? "bg-white ring-2 ring-sakura-400"
+                    : isCompleted
+                      ? "bg-emerald-50/40"
+                      : "bg-white opacity-70"
+                }`}
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-bold text-stone-800">
+                    {isCompleted && "✓ "}
                     {t("curriculum.week")} {w.num} — {w.title[lang]}
                   </span>
                   <span
@@ -67,9 +78,14 @@ export default function CurriculumMap() {
                   >
                     {w.level}
                   </span>
-                  {isSuggested && (
+                  {isCurrent && (
                     <span className="rounded-full bg-sakura-500 px-2 py-0.5 text-[10px] font-bold text-white">
-                      🌸 {t("curriculum.suggested")}
+                      🌸 {t("curriculum.here")}
+                    </span>
+                  )}
+                  {isCompleted && (
+                    <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                      {t("curriculum.passed")}
                     </span>
                   )}
                 </div>
@@ -91,9 +107,22 @@ export default function CurriculumMap() {
                         {a.icon} {t(a.labelKey)}
                       </button>
                     ))}
+                    {isCurrent && testAvailable(w.num) && (
+                      <button
+                        onClick={() => go({ name: "weekTest", week: w.num })}
+                        className="rounded-full bg-stone-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-stone-700"
+                      >
+                        🏯 {t("curriculum.actTest")}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <p className="mt-2 text-[11px] italic text-stone-400">{t("curriculum.comingSoon")}</p>
+                )}
+                {isFuture && (
+                  <p className="mt-2 text-[11px] italic text-stone-400">
+                    🔒 {t("curriculum.lockedByMastery")}
+                  </p>
                 )}
               </div>
             </li>

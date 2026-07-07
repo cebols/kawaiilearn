@@ -5,18 +5,22 @@ import { castFor } from "../content/characters";
 import { DIALOGUES } from "../content/dialogues";
 import { WEEKS } from "../content/curriculum";
 import { goalForWeek, dailyPercent } from "../lib/daily";
+import { testAvailable } from "../content/weekTests";
 import Avatar from "./Avatar";
 import NotificationsCard from "./NotificationsCard";
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
-  const { stats, streak, startedAt, go, profile, daily, completedDialogues } = useAppStore();
-  const pace = suggestedPace(startedAt);
+  const { stats, streak, startedAt, go, profile, daily, completedDialogues, currentWeek } = useAppStore();
+  const paceCalendar = suggestedPace(startedAt);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const cast = castFor(profile?.crush ?? "haruto");
-  const goal = goalForWeek(pace.week);
+  const goal = goalForWeek(currentWeek);
   const pct = dailyPercent(daily, goal);
-  const week = WEEKS.find((w) => w.num === pace.week);
+  const week = WEEKS.find((w) => w.num === currentWeek);
+  const readyForTest = pct >= 100 && testAvailable(currentWeek) && currentWeek < 20;
+  // usa como referência apenas para saudar quem está muito adiantado no calendário
+  const aheadOfCalendar = currentWeek > paceCalendar.week + 1;
 
   // equilíbrio de registro: baseado no que VOCÊ praticou (conversas concluídas);
   // sem prática ainda, mostra a mistura do conteúdo da semana como referência
@@ -38,15 +42,15 @@ export default function Dashboard() {
   } else {
     reg = registerStats(VOCAB_W1);
   }
-  // status honesto: acúmulo de revisões = atrasado; domínio acima da projeção = adiantado
-  const paceStatus = stats.due > 25 ? "behind" : stats.mastered > pace.week * 10 ? "ahead" : "onTrack";
+  // status baseado em mastery: acúmulo de revisões atrasa, o resto é livre
+  const paceStatus = stats.due > 25 ? "behind" : aheadOfCalendar ? "ahead" : "onTrack";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 pop-in">
       <div className="rounded-3xl bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-bold text-stone-800">{t("home.greeting")} 🌸</h2>
         <p className="mt-1 text-sm text-stone-500">
-          {t("home.suggestedPace", { week: pace.week, day: pace.day })} · {t(`home.${paceStatus}`)}
+          {t("home.atWeek", { week: currentWeek })} · {t(`home.${paceStatus}`)}
         </p>
         <p className="mt-1 text-xs text-stone-400">{t("home.freePace")}</p>
 
@@ -78,6 +82,25 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* semana batida → convite para o teste de passagem */}
+      {readyForTest && (
+        <div className="pop-in rounded-3xl bg-gradient-to-br from-amber-100 via-sakura-100 to-violet-100 p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl">🏯</span>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-extrabold text-stone-800">{t("home.testReadyTitle")}</h3>
+              <p className="mt-1 text-sm text-stone-600">{t("home.testReadySub", { week: currentWeek })}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => go({ name: "weekTest", week: currentWeek })}
+            className="mt-4 w-full rounded-full bg-stone-900 py-3 font-semibold text-white transition hover:bg-stone-700"
+          >
+            🎯 {t("home.testReadyCta", { week: currentWeek })}
+          </button>
+        </div>
+      )}
+
       {/* meta do dia: barra de progresso + checklist (só as trilhas que existem na semana atual) */}
       <div className="rounded-3xl bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -85,7 +108,7 @@ export default function Dashboard() {
             <h3 className="font-bold text-stone-700">{t("home.dailyGoal")}</h3>
             {week && (
               <p className="text-[11px] font-semibold text-stone-400">
-                {t("curriculum.week")} {pace.week} · {week.title[lang]}
+                {t("curriculum.week")} {currentWeek} · {week.title[lang]}
               </p>
             )}
           </div>
@@ -118,7 +141,7 @@ export default function Dashboard() {
               label={t("home.goalSentences")}
               done={daily.sentences}
               goal={goal.sentences}
-              onClick={() => go({ name: "sentences", week: pace.week })}
+              onClick={() => go({ name: "sentences", week: currentWeek })}
               remainLabel={t("home.remaining")}
               doneLabel={t("home.completed")}
             />
