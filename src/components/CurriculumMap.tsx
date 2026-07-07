@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { WEEKS, PHASES } from "../content/curriculum";
 import { sentencesForWeek } from "../content/sentences";
+import { lessonsForWeek } from "../content/lessons";
 import { testAvailable } from "../content/weekTests";
 import { useAppStore, type View } from "../store/useAppStore";
 
@@ -26,6 +27,11 @@ function weekActivities(week: number): Activity[] {
     acts.push({ icon: "🧩", labelKey: "curriculum.actSentence", view: { name: "sentences", week } });
   }
   return acts;
+}
+
+/** Lições de gramática da semana (ordem lógica). */
+function weekLessons(week: number) {
+  return lessonsForWeek(week);
 }
 
 export default function CurriculumMap() {
@@ -95,6 +101,28 @@ export default function CurriculumMap() {
                     <li key={gi}>・{g[lang]}</li>
                   ))}
                 </ul>
+
+                {/* lições de gramática — leia ANTES do exercício */}
+                {weekLessons(w.num).length > 0 && (
+                  <div className="mt-3 rounded-2xl bg-amber-50 p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700">
+                      📖 {t("curriculum.lessons")}
+                    </p>
+                    <div className="mt-2 space-y-1.5">
+                      {weekLessons(w.num).map((l) => (
+                        <button
+                          key={l.id}
+                          onClick={() => go({ name: "lesson", id: l.id })}
+                          className="flex w-full items-center gap-2 rounded-xl bg-white px-3 py-2 text-left text-xs shadow-sm transition hover:bg-amber-100"
+                        >
+                          <span>{l.emoji}</span>
+                          <span className="flex-1 font-semibold text-stone-800">{l.title[lang]}</span>
+                          <span className="text-stone-300">→</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {acts.length > 0 ? (
                   <div className="mt-3 flex flex-wrap gap-2">

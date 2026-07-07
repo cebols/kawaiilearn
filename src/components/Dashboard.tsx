@@ -6,6 +6,7 @@ import { DIALOGUES } from "../content/dialogues";
 import { WEEKS } from "../content/curriculum";
 import { goalForWeek, dailyPercent } from "../lib/daily";
 import { testAvailable } from "../content/weekTests";
+import { lessonsForWeek } from "../content/lessons";
 import Avatar from "./Avatar";
 import NotificationsCard from "./NotificationsCard";
 
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const goal = goalForWeek(currentWeek);
   const pct = dailyPercent(daily, goal);
   const week = WEEKS.find((w) => w.num === currentWeek);
+  const lessons = lessonsForWeek(currentWeek);
   const readyForTest = pct >= 100 && testAvailable(currentWeek) && currentWeek < 20;
   // usa como referência apenas para saudar quem está muito adiantado no calendário
   const aheadOfCalendar = currentWeek > paceCalendar.week + 1;
@@ -159,6 +161,35 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* lições de gramática da semana (só a partir da 3, quando aparece gramática) */}
+      {lessons.length > 0 && (
+        <div className="rounded-3xl bg-gradient-to-br from-amber-50 to-sakura-50 p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📖</span>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-extrabold text-stone-800">{t("home.lessonsTitle", { week: currentWeek })}</h3>
+              <p className="mt-1 text-xs text-stone-500">{t("home.lessonsSub")}</p>
+            </div>
+          </div>
+          <div className="mt-3 space-y-2">
+            {lessons.map((l) => (
+              <button
+                key={l.id}
+                onClick={() => go({ name: "lesson", id: l.id })}
+                className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:shadow-md"
+              >
+                <span className="text-xl">{l.emoji}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-stone-800">{l.title[lang]}</p>
+                  <p className="truncate text-[11px] text-stone-500">{l.subtitle[lang]}</p>
+                </div>
+                <span className="text-stone-300">→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* nudges espontâneos dos personagens */}
       <NotificationsCard />

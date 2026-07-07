@@ -21,6 +21,8 @@
     "testReadyTitle": "Semana em dia — pronto pro teste? 🏯",
     "testReadySub": "Você bateu 100% da meta da semana {{week}}. Passe no teste (rigoroso) pra destravar a próxima.",
     "testReadyCta": "Fazer o teste da semana {{week}}",
+    "lessonsTitle": "Gramática desta semana",
+    "lessonsSub": "Leia estas lições antes do exercício de Montar frases — quem só chuta acerta pouco. Cada uma tem só 2 minutinhos.",
     "freePace": "O progresso é livre — esse é só o ritmo sugerido para completar as 20 semanas.",
     "registerMeter": "Seu equilíbrio de registro",
     "polite": "Polido",
@@ -59,6 +61,7 @@
     "actChat": "Conversas",
     "actSentence": "Montar frases",
     "actTest": "Teste da semana",
+    "lessons": "Lições de gramática",
     "subtitleMastery": "Avança pelo domínio, não pelo calendário. Passe no teste da semana para destravar a próxima.",
     "here": "você está aqui",
     "passed": "✓ concluída",
@@ -73,6 +76,7 @@
     "start": "Começar o teste",
     "later": "Deixar para depois",
     "readKana": "Como se lê este kana?",
+    "writeKana": "Qual kana representa este som?",
     "check": "Conferir",
     "right": "Certo!",
     "wrong": "Errado.",
@@ -87,6 +91,12 @@
     "failedSub": "Você errou {{n}} de {{total}}. Regra da casa: passar exige 100%.",
     "failedHint": "Revisar por 5 minutos antes de refazer geralmente resolve. O teste é sempre montado do zero, com novo embaralhamento.",
     "retry": "Refazer o teste"
+  },
+  "lesson": {
+    "tag": "Aula de gramática",
+    "backToWeek": "Voltar ao currículo",
+    "practice": "Praticar montando frases",
+    "notFound": "Lição não encontrada."
   },
   "sentence": {
     "prompt": "Monte esta frase em japonês:",

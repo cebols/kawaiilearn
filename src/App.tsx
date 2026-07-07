@@ -10,6 +10,7 @@ import DialogueList from "./components/DialogueList";
 import ChatDialogue from "./components/ChatDialogue";
 import SentenceBuild from "./components/SentenceBuild";
 import WeekTest from "./components/WeekTest";
+import LessonView from "./components/LessonView";
 import Onboarding from "./components/Onboarding";
 
 export default function App() {
@@ -59,6 +60,7 @@ export default function App() {
         {view.name === "trace" && <TraceCanvas />}
         {view.name === "sentences" && <SentenceBuild week={view.week} key={view.week} />}
         {view.name === "weekTest" && <WeekTest week={view.week} key={`test-${view.week}`} />}
+        {view.name === "lesson" && <LessonView id={view.id} key={view.id} />}
         {view.name === "dialogues" && <DialogueList />}
         {view.name === "dialogue" && <ChatDialogue id={view.id} key={view.id} />}
       </main>

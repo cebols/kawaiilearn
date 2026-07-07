@@ -53,7 +53,7 @@ export default function WeekTest({ week }: { week: number }) {
   const check = () => {
     if (!q) return;
     let correct = false;
-    if (q.kind === "kana" || q.kind === "register") {
+    if (q.kind === "kana" || q.kind === "kana2r" || q.kind === "register") {
       correct = choice === q.answer;
     } else if (q.kind === "sentence") {
       correct = placed.length === q.answer.length && placed.every((ti, i) => q.tiles[ti] === q.answer[i]);
@@ -62,8 +62,8 @@ export default function WeekTest({ week }: { week: number }) {
     if (!correct) setWrongCount((w) => w + 1);
     if (correct && (q.kind === "sentence" || q.kind === "register")) {
       if (ttsAvailable()) void speak(q.kind === "sentence" ? q.answer.join("") : q.answer);
-    } else if (correct && q.kind === "kana" && ttsAvailable()) {
-      void speak(q.prompt);
+    } else if (correct && (q.kind === "kana" || q.kind === "kana2r") && ttsAvailable()) {
+      void speak(q.kind === "kana" ? q.prompt : q.answer);
     }
   };
 
@@ -205,6 +205,18 @@ export default function WeekTest({ week }: { week: number }) {
           </>
         )}
 
+        {q.kind === "kana2r" && (
+          <>
+            <p className="text-xs font-bold uppercase tracking-wide text-stone-400">{t("test.writeKana")}</p>
+            <p className="mt-4 text-center text-4xl font-bold text-sakura-600 tracking-wide">{q.prompt}</p>
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {q.options.map((opt) => (
+                <OptButton key={opt} opt={opt} status={status} chosen={choice} answer={q.answer} jp onClick={() => status === "answering" && setChoice(opt)} />
+              ))}
+            </div>
+          </>
+        )}
+
         {q.kind === "register" && (
           <>
             <p className="text-xs font-bold uppercase tracking-wide text-stone-400">{q.prompt[lang]}</p>
@@ -238,7 +250,7 @@ export default function WeekTest({ week }: { week: number }) {
               <b>
                 {q.kind === "sentence"
                   ? (q as Extract<Question, { kind: "sentence" }>).answer.join("")
-                  : (q as Extract<Question, { kind: "kana" | "register" }>).answer}
+                  : (q as Extract<Question, { kind: "kana" | "kana2r" | "register" }>).answer}
               </b>
             </p>
           </div>
@@ -249,7 +261,7 @@ export default function WeekTest({ week }: { week: number }) {
             <button
               disabled={
                 (q.kind === "sentence" && placed.length !== q.tiles.length) ||
-                ((q.kind === "kana" || q.kind === "register") && !choice)
+                ((q.kind === "kana" || q.kind === "kana2r" || q.kind === "register") && !choice)
               }
               onClick={check}
               className="w-full rounded-full bg-sakura-500 py-3 font-semibold text-white transition enabled:hover:bg-sakura-600 disabled:opacity-40"
@@ -280,6 +292,7 @@ function OptButton({
   answer,
   onClick,
   big,
+  jp,
 }: {
   opt: string;
   status: "answering" | "right" | "wrong";
@@ -287,16 +300,15 @@ function OptButton({
   answer: string;
   onClick: () => void;
   big?: boolean;
+  jp?: boolean;
 }) {
   let cls = "bg-stone-100 text-stone-700 hover:bg-sakura-100";
   if (status === "answering" && chosen === opt) cls = "bg-sakura-500 text-white";
   else if (status !== "answering" && opt === answer) cls = "bg-emerald-500 text-white";
   else if (status !== "answering" && chosen === opt) cls = "bg-rose-400 text-white";
+  const size = jp ? "jp text-3xl font-bold" : big ? "jp text-base" : "text-lg font-semibold";
   return (
-    <button
-      onClick={onClick}
-      className={`${big ? "jp text-base" : "text-lg font-semibold"} rounded-2xl px-3 py-3 transition ${cls}`}
-    >
+    <button onClick={onClick} className={`${size} rounded-2xl px-3 py-3 transition ${cls}`}>
       {opt}
     </button>
   );

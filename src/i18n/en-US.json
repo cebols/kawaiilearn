@@ -21,6 +21,8 @@
     "testReadyTitle": "Week done — ready for the test? 🏯",
     "testReadySub": "You hit 100% of week {{week}}'s goal. Pass the (rigorous) test to unlock the next week.",
     "testReadyCta": "Take the week {{week}} test",
+    "lessonsTitle": "This week's grammar",
+    "lessonsSub": "Read these before the Build Sentences exercise — guessing rarely works. Each one takes just a couple minutes.",
     "freePace": "Progress is free — this is just the suggested pace to finish the 20 weeks.",
     "registerMeter": "Your register balance",
     "polite": "Polite",
@@ -59,6 +61,7 @@
     "actChat": "Chats",
     "actSentence": "Build sentences",
     "actTest": "Week test",
+    "lessons": "Grammar lessons",
     "subtitleMastery": "You advance by mastery, not by calendar. Pass a week's test to unlock the next.",
     "here": "you are here",
     "passed": "✓ passed",
@@ -73,6 +76,7 @@
     "start": "Start the test",
     "later": "Come back later",
     "readKana": "How is this kana read?",
+    "writeKana": "Which kana matches this sound?",
     "check": "Check",
     "right": "Correct!",
     "wrong": "Wrong.",
@@ -87,6 +91,12 @@
     "failedSub": "You missed {{n}} of {{total}}. House rule: passing needs 100%.",
     "failedHint": "A quick 5-minute review before retrying usually does it. The test is rebuilt from scratch with fresh shuffling every time.",
     "retry": "Retake the test"
+  },
+  "lesson": {
+    "tag": "Grammar lesson",
+    "backToWeek": "Back to curriculum",
+    "practice": "Practice with sentences",
+    "notFound": "Lesson not found."
   },
   "sentence": {
     "prompt": "Build this sentence in Japanese:",

@@ -9,9 +9,9 @@ import type { Week } from "../types";
  */
 export const WEEKS: Week[] = [
   // ── Fase 1 · Fundação (N5-) ──
-  { num: 1, phase: 1, level: "N5-", available: true, title: { pt: "Hiragana + saudações", en: "Hiragana + greetings" }, goals: [{ pt: "Ler e escrever os 46 hiragana", en: "Read and write all 46 hiragana" }, { pt: "Cumprimentar nos dois registros", en: "Greet in both registers" }] },
-  { num: 2, phase: 1, level: "N5-", available: true, title: { pt: "Katakana + apresentar-se", en: "Katakana + introducing yourself" }, goals: [{ pt: "Ler katakana e palavras emprestadas", en: "Read katakana and loanwords" }, { pt: "〜です ⇄ 〜だ/だよ", en: "〜です ⇄ 〜だ/だよ" }] },
-  { num: 3, phase: 1, level: "N5-", available: true, title: { pt: "Sobrevivência + partículas は・を・に", en: "Survival + は・を・に" }, goals: [{ pt: "Montar frases com partículas", en: "Build sentences with particles" }, { pt: "は tópico, を objeto, に destino", en: "は topic, を object, に destination" }] },
+  { num: 1, phase: 1, level: "N5-", available: true, title: { pt: "Hiragana", en: "Hiragana" }, goals: [{ pt: "Ler os 46 hiragana básicos", en: "Read all 46 basic hiragana" }, { pt: "Reconhecer o som de cada um", en: "Recognize each one's sound" }] },
+  { num: 2, phase: 1, level: "N5-", available: true, title: { pt: "Katakana", en: "Katakana" }, goals: [{ pt: "Ler katakana e palavras emprestadas", en: "Read katakana and loanwords" }, { pt: "Revisar hiragana", en: "Review hiragana" }] },
+  { num: 3, phase: 1, level: "N5-", available: true, title: { pt: "1ª gramática: は・を・に", en: "First grammar: は・を・に" }, goals: [{ pt: "3 aulas curtas de partículas", en: "3 short particle lessons" }, { pt: "Montar suas primeiras frases", en: "Build your first sentences" }] },
 
   // ── Fase 2 · Estrutura (N5) ──
   { num: 4, phase: 2, level: "N5", available: true, title: { pt: "Verbos: forma ます + で local", en: "Verbs: ます form + で for place" }, goals: [{ pt: "Presente/futuro em ます", en: "Present/future in ます" }, { pt: "で = onde a ação acontece", en: "で = where the action happens" }] },
