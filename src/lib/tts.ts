@@ -22,15 +22,30 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
   };
 }
 
-export function speak(text: string, rate = 0.9): void {
-  if (!("speechSynthesis" in window)) return;
+/** Fala o texto e resolve quando o áudio termina (onend). Fallback por tempo caso o SO nunca dispare onend. */
+export function speak(text: string, rate = 0.9): Promise<void> {
+  if (!("speechSynthesis" in window)) return Promise.resolve();
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = "ja-JP";
   utter.rate = rate;
   const voice = pickVoice();
   if (voice) utter.voice = voice;
-  window.speechSynthesis.speak(utter);
+
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      resolve();
+    };
+    utter.onend = finish;
+    utter.onerror = finish;
+    // safety net: alguns SOs (especialmente Chrome desktop) engolem o onend
+    const estimatedMs = Math.max(1200, text.length * 160);
+    setTimeout(finish, estimatedMs + 500);
+    window.speechSynthesis.speak(utter);
+  });
 }
 
 export function ttsAvailable(): boolean {

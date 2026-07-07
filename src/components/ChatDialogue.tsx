@@ -40,29 +40,51 @@ export default function ChatDialogue({ id }: { id: string }) {
   const [showTranslations, setShowTranslations] = useState(false);
   const [readingShown, setReadingShown] = useState<Set<number>>(new Set());
   const [typing, setTyping] = useState(false);
-  // quanto o personagem deve esperar antes de responder — o suficiente para
-  // o áudio da SUA última fala terminar de tocar
-  const pendingWaitRef = useRef(0);
+  // Promise do áudio da SUA última fala — o char só responde depois que ela resolve
+  const pendingAudioRef = useRef<Promise<void> | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const line = dialogue.lines[lineIdx];
   const finished = lineIdx >= dialogue.lines.length;
   const casual = register === "casual";
 
-  // falas do personagem entram sozinhas, com "digitando…" antes
+  // falas do personagem entram sozinhas: (1) esperam o áudio da sua fala terminar
+  // (2) mostram "…" pulando por ~1.7s, (3) só então a mensagem entra.
   useEffect(() => {
     if (finished || !line || line.speaker === "you") return;
-    const base = msgs.length === 0 ? 400 : 900;
-    const wait = Math.max(base, pendingWaitRef.current);
-    pendingWaitRef.current = 0; // consome a espera do áudio do usuário
-    setTyping(true);
-    const timer = setTimeout(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const TYPING_MS = 1700; // reticências pulando por ~1.7s antes da resposta
+    const FIRST_MS = 500; // primeira fala do char no diálogo entra rápido
+
+    const showTyping = () => {
+      if (cancelled) return;
+      setTyping(true);
+      timer = setTimeout(() => {
+        if (cancelled) return;
+        setTyping(false);
+        setMsgs((m) => [...m, { from: "them", ...line }]);
+        if (ttsAvailable()) void speak(textOf(line, casual, false));
+        setLineIdx((i) => i + 1);
+      }, TYPING_MS);
+    };
+
+    const wait = pendingAudioRef.current;
+    pendingAudioRef.current = null;
+    if (wait) {
+      // espera o áudio da SUA fala terminar, aí começa a digitar
+      wait.then(() => !cancelled && showTyping());
+    } else {
+      // primeira fala do char (ou volta pra ele sem áudio nosso pendente)
+      timer = setTimeout(showTyping, FIRST_MS);
+    }
+
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
       setTyping(false);
-      setMsgs((m) => [...m, { from: "them", ...line }]);
-      if (ttsAvailable()) speak(textOf(line, casual, false));
-      setLineIdx((i) => i + 1);
-    }, wait);
-    return () => clearTimeout(timer);
+    };
     // `casual` nas deps: se o toggle mudar com fala pendente, o TTS sai no registro certo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lineIdx, finished, casual]);
@@ -83,18 +105,12 @@ export default function ChatDialogue({ id }: { id: string }) {
     }
   }, [finished, id, completeDialogue, recordActivity]);
 
-  /** Estima a duração da fala para o personagem esperar o áudio terminar. */
-  const speechMs = (text: string) => Math.min(6000, Math.max(1300, text.length * 150));
-
   const choose = (c: SpeechPair) => {
     setMsgs((m) => [...m, { from: "you", ...c }]);
     // sua mensagem também é falada — ouvir a própria fala fixa a pronúncia
     const text = textOf(c, casual, false);
-    if (ttsAvailable()) {
-      speak(text);
-      // segura a resposta do personagem até o áudio da sua fala terminar
-      pendingWaitRef.current = speechMs(text);
-    }
+    // guarda a Promise do áudio: o char só começa a "digitar" depois que ela resolve
+    pendingAudioRef.current = ttsAvailable() ? speak(text) : null;
     setLineIdx((i) => i + 1);
   };
 

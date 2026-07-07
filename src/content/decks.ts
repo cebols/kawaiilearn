@@ -1,5 +1,6 @@
 import { HIRAGANA } from "./hiragana";
 import { KATAKANA } from "./katakana";
+import { DAKUTEN_HIRA, DAKUTEN_KATA } from "./dakuten";
 import HIRA_STROKES from "./strokes/hiragana.json";
 import KATA_STROKES from "./strokes/katakana.json";
 import type { KanaItem, L10n } from "../types";
@@ -18,13 +19,14 @@ export const KANA_DECKS: Record<string, KanaDeck> = {
   hiragana: {
     id: "hiragana",
     title: { pt: "Hiragana", en: "Hiragana" },
-    items: HIRAGANA,
+    // sonoros entram depois dos 46 básicos — a ordem do deck é a ordem de estudo
+    items: [...HIRAGANA, ...DAKUTEN_HIRA],
     strokes: HIRA_STROKES,
   },
   katakana: {
     id: "katakana",
     title: { pt: "Katakana", en: "Katakana" },
-    items: KATAKANA,
+    items: [...KATAKANA, ...DAKUTEN_KATA],
     strokes: KATA_STROKES,
   },
 };

@@ -2,17 +2,41 @@ import { useTranslation } from "react-i18next";
 import { useAppStore, suggestedPace } from "../store/useAppStore";
 import { VOCAB_W1, registerStats } from "../content/vocab";
 import { castFor } from "../content/characters";
-import { DAILY_GOAL, dailyPercent } from "../lib/daily";
+import { DIALOGUES } from "../content/dialogues";
+import { WEEKS } from "../content/curriculum";
+import { goalForWeek, dailyPercent } from "../lib/daily";
 import Avatar from "./Avatar";
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
-  const { stats, streak, startedAt, go, profile, daily } = useAppStore();
+  const { stats, streak, startedAt, go, profile, daily, completedDialogues } = useAppStore();
   const pace = suggestedPace(startedAt);
-  const reg = registerStats(VOCAB_W1);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const cast = castFor(profile?.crush ?? "haruto");
-  const pct = dailyPercent(daily);
+  const goal = goalForWeek(pace.week);
+  const pct = dailyPercent(daily, goal);
+  const week = WEEKS.find((w) => w.num === pace.week);
+
+  // equilíbrio de registro: baseado no que VOCÊ praticou (conversas concluídas);
+  // sem prática ainda, mostra a mistura do conteúdo da semana como referência
+  const practiced = DIALOGUES.filter((d) => completedDialogues.has(d.id));
+  let reg: { polite: number; casual: number };
+  let regFromPractice = practiced.length > 0;
+  if (regFromPractice) {
+    let pol = 0;
+    let cas = 0;
+    for (const d of practiced) {
+      if (d.register === "polite") pol++;
+      else if (d.register === "casual") cas++;
+      else {
+        pol += 0.5;
+        cas += 0.5;
+      }
+    }
+    reg = { polite: Math.round((pol / (pol + cas)) * 100), casual: Math.round((cas / (pol + cas)) * 100) };
+  } else {
+    reg = registerStats(VOCAB_W1);
+  }
   // status honesto: acúmulo de revisões = atrasado; domínio acima da projeção = adiantado
   const paceStatus = stats.due > 25 ? "behind" : stats.mastered > pace.week * 10 ? "ahead" : "onTrack";
 
@@ -53,10 +77,17 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* meta do dia: barra de progresso + checklist */}
+      {/* meta do dia: barra de progresso + checklist (só as trilhas que existem na semana atual) */}
       <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <div className="flex items-baseline justify-between">
-          <h3 className="font-bold text-stone-700">{t("home.dailyGoal")}</h3>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div>
+            <h3 className="font-bold text-stone-700">{t("home.dailyGoal")}</h3>
+            {week && (
+              <p className="text-[11px] font-semibold text-stone-400">
+                {t("curriculum.week")} {pace.week} · {week.title[lang]}
+              </p>
+            )}
+          </div>
           <span className="text-sm font-bold text-sakura-600">{pct}%</span>
         </div>
         <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-100">
@@ -69,15 +100,56 @@ export default function Dashboard() {
           {pct >= 100 ? t("home.goalDone") : t("home.goalHint")}
         </p>
         <div className="mt-4 space-y-2">
-          <GoalRow icon="🎴" label={t("home.goalCards")} done={daily.cards} goal={DAILY_GOAL.cards} onClick={() => go({ name: "flashcards", deck: "hiragana" })} remainLabel={t("home.remaining")} doneLabel={t("home.completed")} />
-          <GoalRow icon="🧩" label={t("home.goalSentences")} done={daily.sentences} goal={DAILY_GOAL.sentences} onClick={() => go({ name: "curriculum" })} remainLabel={t("home.remaining")} doneLabel={t("home.completed")} />
-          <GoalRow icon="💬" label={t("home.goalConvos")} done={daily.convos} goal={DAILY_GOAL.convos} onClick={() => go({ name: "dialogues" })} remainLabel={t("home.remaining")} doneLabel={t("home.completed")} />
+          {goal.cards > 0 && (
+            <GoalRow
+              icon="🎴"
+              label={t("home.goalCards")}
+              done={daily.cards}
+              goal={goal.cards}
+              onClick={() => go({ name: "flashcards", deck: "hiragana" })}
+              remainLabel={t("home.remaining")}
+              doneLabel={t("home.completed")}
+            />
+          )}
+          {goal.sentences > 0 && (
+            <GoalRow
+              icon="🧩"
+              label={t("home.goalSentences")}
+              done={daily.sentences}
+              goal={goal.sentences}
+              onClick={() => go({ name: "sentences", week: pace.week })}
+              remainLabel={t("home.remaining")}
+              doneLabel={t("home.completed")}
+            />
+          )}
+          {goal.convos > 0 && (
+            <GoalRow
+              icon="💬"
+              label={t("home.goalConvos")}
+              done={daily.convos}
+              goal={goal.convos}
+              onClick={() => go({ name: "dialogues" })}
+              remainLabel={t("home.remaining")}
+              doneLabel={t("home.completed")}
+            />
+          )}
         </div>
       </div>
 
       {/* medidor 55/45 */}
       <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <h3 className="font-bold text-stone-700">{t("home.registerMeter")}</h3>
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-bold text-stone-700">{t("home.registerMeter")}</h3>
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+              regFromPractice ? "bg-emerald-50 text-emerald-700" : "bg-stone-100 text-stone-500"
+            }`}
+          >
+            {regFromPractice
+              ? t("home.regFromPractice", { n: practiced.length })
+              : t("home.regFromContent")}
+          </span>
+        </div>
         <div className="mt-3 flex h-5 overflow-hidden rounded-full text-[10px] font-bold text-white">
           <div className="flex items-center justify-center bg-indigo-400" style={{ width: `${reg.polite}%` }}>
             {reg.polite}%
@@ -90,6 +162,7 @@ export default function Dashboard() {
           <span>🎩 {t("home.polite")} (です・ます)</span>
           <span>{t("home.casual")} (タメ口) 🎉</span>
         </div>
+        <p className="mt-2 text-[11px] text-stone-400">{t("home.regHint")}</p>
       </div>
 
       {/* elenco */}

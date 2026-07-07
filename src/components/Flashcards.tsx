@@ -48,6 +48,11 @@ export default function Flashcards({ deck }: { deck: string }) {
     if (queue && !queue[idx]) void countNewInDeck(deck, "reading").then(setMoreNew);
   }, [queue, idx, deck]);
 
+  // a leitura toca sozinha ao mostrar um card novo (imersão auditiva)
+  useEffect(() => {
+    if (item && ttsAvailable()) speak(item.kana);
+  }, [item]);
+
   const grading = useRef(false);
   const grade = useCallback(
     async (rating: Grade) => {
@@ -67,10 +72,9 @@ export default function Flashcards({ deck }: { deck: string }) {
       });
       setIdx((i) => i + 1);
       grading.current = false;
-      if (!cram) {
-        void recordActivity("cards");
-        void refresh();
-      }
+      // até a prática livre conta como atividade do dia (só não mexe no agendamento)
+      void recordActivity("cards");
+      if (!cram) void refresh();
     },
     [current, cram, refresh, recordActivity]
   );
