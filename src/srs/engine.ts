@@ -37,19 +37,23 @@ function todayKey(): string {
   return new Date().toDateString();
 }
 
-/** Quantos cards novos ainda cabem hoje. */
-export async function newQuotaToday(): Promise<number> {
-  const date = await getKV("introDate");
+/**
+ * Cota de cards novos por DECK por dia — assim passar da semana 1 pra 2
+ * libera 10 katakana mesmo que você já tenha estudado os 10 hiragana hoje.
+ * Chave: introDate:<deck> guarda o dia; introCount:<deck>, o total.
+ */
+export async function newQuotaToday(deck = "hiragana"): Promise<number> {
+  const date = await getKV(`introDate:${deck}`);
   if (date !== todayKey()) return NEW_PER_DAY;
-  const count = Number((await getKV("introCount")) ?? 0);
+  const count = Number((await getKV(`introCount:${deck}`)) ?? 0);
   return Math.max(0, NEW_PER_DAY - count);
 }
 
-async function bumpIntroCount(): Promise<void> {
-  const date = await getKV("introDate");
-  const count = date === todayKey() ? Number((await getKV("introCount")) ?? 0) : 0;
-  await setKV("introDate", todayKey());
-  await setKV("introCount", String(count + 1));
+async function bumpIntroCount(deck: string): Promise<void> {
+  const date = await getKV(`introDate:${deck}`);
+  const count = date === todayKey() ? Number((await getKV(`introCount:${deck}`)) ?? 0) : 0;
+  await setKV(`introDate:${deck}`, todayKey());
+  await setKV(`introCount:${deck}`, String(count + 1));
 }
 
 /** Card em fase de aprendizado (passos curtos) — entra na fila mesmo com due no futuro próximo. */
@@ -65,7 +69,7 @@ export async function buildQueue(deck: string, skill: Skill, extraNew = 0): Prom
   const due = all
     .filter((c) => c.fsrs.state !== State.New && (new Date(c.fsrs.due) <= now || isLearning(c)))
     .sort((a, b) => new Date(a.fsrs.due).getTime() - new Date(b.fsrs.due).getTime());
-  const quota = (await newQuotaToday()) + extraNew;
+  const quota = (await newQuotaToday(deck)) + extraNew;
   const fresh = all
     .filter((c) => c.fsrs.state === State.New)
     .sort((a, b) => a.addedAt - b.addedAt)
@@ -95,7 +99,7 @@ export async function review(card: StoredCard, rating: Grade): Promise<StoredCar
   const updated = { ...card, fsrs: next };
   await db.cards.put(updated);
   await db.reviews.add({ cardId: card.id, rating, reviewedAt: Date.now() });
-  if (wasNew) await bumpIntroCount();
+  if (wasNew) await bumpIntroCount(card.deck);
   return updated;
 }
 
@@ -121,7 +125,9 @@ export async function deckStats(deck?: string): Promise<DeckStats> {
     if (isMastered) mastered++;
     else if (c.fsrs.state !== State.New) learning++;
   }
-  const quota = await newQuotaToday();
+  // stats globais: soma a cota do deck da semana atual — o dashboard sinaliza
+  // quantos NOVOS ainda dá pra pegar hoje. Se `deck` foi informado, cota daquele.
+  const quota = deck ? await newQuotaToday(deck) : await newQuotaToday("hiragana");
   return { due, fresh: Math.min(fresh, quota), learning, mastered, total: all.length };
 }
 

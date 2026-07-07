@@ -33,3 +33,8 @@ export const KANA_DECKS: Record<string, KanaDeck> = {
 
 export const kanaDeck = (id: string): KanaDeck => KANA_DECKS[id] ?? KANA_DECKS.hiragana;
 export const isKanaDeck = (id: string): boolean => id in KANA_DECKS;
+
+/** Deck de kana que o aluno deve estudar/revisar nesta semana. */
+export function deckForWeek(week: number): "hiragana" | "katakana" {
+  return week === 1 ? "hiragana" : "katakana";
+}

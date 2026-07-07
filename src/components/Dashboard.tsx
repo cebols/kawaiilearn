@@ -7,6 +7,7 @@ import { WEEKS } from "../content/curriculum";
 import { goalForWeek, dailyPercent } from "../lib/daily";
 import { testAvailable } from "../content/weekTests";
 import { lessonsForWeek } from "../content/lessons";
+import { deckForWeek, kanaDeck } from "../content/decks";
 import Avatar from "./Avatar";
 import NotificationsCard from "./NotificationsCard";
 
@@ -20,6 +21,8 @@ export default function Dashboard() {
   const pct = dailyPercent(daily, goal);
   const week = WEEKS.find((w) => w.num === currentWeek);
   const lessons = lessonsForWeek(currentWeek);
+  const deckId = deckForWeek(currentWeek);
+  const deckTitle = kanaDeck(deckId).title[lang];
   const readyForTest = pct >= 100 && testAvailable(currentWeek) && currentWeek < 20;
   // usa como referência apenas para saudar quem está muito adiantado no calendário
   const aheadOfCalendar = currentWeek > paceCalendar.week + 1;
@@ -64,10 +67,10 @@ export default function Dashboard() {
 
         <div className="mt-5 flex flex-wrap gap-3">
           <button
-            onClick={() => go({ name: "flashcards", deck: "hiragana" })}
+            onClick={() => go({ name: "flashcards", deck: deckId })}
             className="rounded-full bg-sakura-500 px-6 py-2.5 font-semibold text-white shadow transition hover:bg-sakura-600"
           >
-            {stats.due > 0 ? t("home.startReview") : t("home.learnNew")}
+            {stats.due > 0 ? t("home.startReview") : `${t("home.learnNew")} · ${deckTitle}`}
           </button>
           <button
             onClick={() => go({ name: "trace" })}
@@ -132,9 +135,10 @@ export default function Dashboard() {
               label={t("home.goalCards")}
               done={daily.cards}
               goal={goal.cards}
-              onClick={() => go({ name: "flashcards", deck: "hiragana" })}
+              onClick={() => go({ name: "flashcards", deck: deckId })}
               remainLabel={t("home.remaining")}
               doneLabel={t("home.completed")}
+              detail={deckTitle}
             />
           )}
           {goal.sentences > 0 && (
@@ -273,6 +277,7 @@ function GoalRow({
   onClick,
   remainLabel,
   doneLabel,
+  detail,
 }: {
   icon: string;
   label: string;
@@ -281,6 +286,7 @@ function GoalRow({
   onClick: () => void;
   remainLabel: string;
   doneLabel: string;
+  detail?: string;
 }) {
   const complete = done >= goal;
   const remaining = Math.max(0, goal - done);
@@ -293,7 +299,10 @@ function GoalRow({
     >
       <span className="text-lg">{icon}</span>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-stone-700">{label}</p>
+        <p className="text-sm font-semibold text-stone-700">
+          {label}
+          {detail && <span className="ml-1.5 rounded-full bg-sakura-100 px-1.5 py-0.5 text-[9px] font-bold text-sakura-700">{detail}</span>}
+        </p>
         <p className="text-xs text-stone-400">
           {complete ? `✓ ${doneLabel}` : `${remaining} ${remainLabel}`}
         </p>

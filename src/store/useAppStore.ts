@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { getKV, setKV } from "../db/db";
 import { deckStats, computeStreak, type DeckStats } from "../srs/engine";
 import { getDaily, persistDaily, type DailyProgress } from "../lib/daily";
+import { deckForWeek } from "../content/decks";
 import type { CrushId } from "../content/characters";
 
 export type View =
@@ -58,7 +59,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   refresh: async () => {
     // `daily` NÃO é relido aqui: é autoritativo em memória (recordActivity),
     // senão uma leitura stale do banco sobrescreveria incrementos recentes.
-    const [stats, streak] = await Promise.all([deckStats(), computeStreak()]);
+    const deck = deckForWeek(get().currentWeek);
+    const [stats, streak] = await Promise.all([deckStats(deck), computeStreak()]);
     set({ stats, streak });
   },
   init: async () => {
@@ -67,14 +69,17 @@ export const useAppStore = create<AppState>((set, get) => ({
       started = String(Date.now());
       await setKV("startedAt", started);
     }
-    const [stats, streak, rawProfile, rawDone, daily, rawWeek] = await Promise.all([
-      deckStats(),
+    const [streak, rawProfile, rawDone, daily, rawWeek] = await Promise.all([
       computeStreak(),
       getKV("profile"),
       getKV("completedDialogues"),
       getDaily(),
       getKV("currentWeek"),
     ]);
+    const week = rawWeek ? Math.max(1, Math.min(20, Number(rawWeek))) : 1;
+    // stats do deck da semana atual (não global — o dashboard mostra o que
+    // importa AGORA: quantos katakana ainda tem pra hoje se você tá na sem. 2)
+    const stats = await deckStats(deckForWeek(week));
     set({
       startedAt: Number(started),
       stats,
@@ -82,13 +87,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       profile: rawProfile ? (JSON.parse(rawProfile) as Profile) : null,
       completedDialogues: new Set(rawDone ? (JSON.parse(rawDone) as string[]) : []),
       daily,
-      currentWeek: rawWeek ? Math.max(1, Math.min(20, Number(rawWeek))) : 1,
+      currentWeek: week,
     });
   },
   advanceWeek: async () => {
     const next = Math.min(20, get().currentWeek + 1);
     await setKV("currentWeek", String(next));
     set({ currentWeek: next });
+    // relê stats pro novo deck: sem. 2 volta 10 katakana na home
+    void get().refresh();
   },
   recordActivity: async (field) => {
     // in-memory é autoritativo e síncrono → sem corrida entre atividades seguidas

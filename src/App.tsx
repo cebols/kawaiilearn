@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "./store/useAppStore";
 import { catchUpAndArm } from "./lib/notifications";
+import { deckForWeek } from "./content/decks";
 import Dashboard from "./components/Dashboard";
 import CurriculumMap from "./components/CurriculumMap";
 import Flashcards from "./components/Flashcards";
@@ -15,7 +16,7 @@ import Onboarding from "./components/Onboarding";
 
 export default function App() {
   const { t, i18n } = useTranslation();
-  const { view, go, init, profile } = useAppStore();
+  const { view, go, init, profile, currentWeek } = useAppStore();
 
   useEffect(() => {
     void init();
@@ -70,7 +71,7 @@ export default function App() {
         <div className="mx-auto flex max-w-3xl justify-around py-2">
           <NavBtn active={view.name === "home"} icon="🏠" label={t("nav.home")} onClick={() => go({ name: "home" })} />
           <NavBtn active={view.name === "curriculum"} icon="🗺️" label={t("nav.curriculum")} onClick={() => go({ name: "curriculum" })} />
-          <NavBtn active={view.name === "flashcards"} icon="🎴" label={t("nav.flashcards")} onClick={() => go({ name: "flashcards", deck: "hiragana" })} />
+          <NavBtn active={view.name === "flashcards"} icon="🎴" label={t("nav.flashcards")} onClick={() => go({ name: "flashcards", deck: deckForWeek(currentWeek) })} />
           {/* comunicação em primeiro plano: conversas antes da escrita manual */}
           <NavBtn active={view.name === "dialogues" || view.name === "dialogue"} icon="💬" label={t("nav.dialogues")} onClick={() => go({ name: "dialogues" })} />
           <NavBtn active={view.name === "trace"} icon="✍️" label={t("nav.trace")} onClick={() => go({ name: "trace" })} />
