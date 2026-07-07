@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { testForWeek, type Question } from "../content/weekTests";
 import { WEEKS } from "../content/curriculum";
 import { speak, ttsAvailable } from "../lib/tts";
+import { spaceOut } from "../lib/spacing";
 import { useAppStore } from "../store/useAppStore";
 
 type Phase = "intro" | "quiz" | "passed" | "failed";
@@ -221,14 +222,14 @@ export default function WeekTest({ week }: { week: number }) {
           <>
             <p className="text-xs font-bold uppercase tracking-wide text-stone-400">{q.prompt[lang]}</p>
             <p className="jp mt-3 rounded-2xl bg-stone-50 p-4 text-center text-lg font-semibold text-stone-800">
-              {q.source}
+              {spaceOut(q.source)}
             </p>
             <p className="mt-2 text-center text-[10px] font-bold uppercase tracking-wide text-sakura-600">
               → {q.direction === "toCasual" ? t("dialogue.casual") : t("dialogue.polite")}
             </p>
             <div className="mt-4 grid grid-cols-1 gap-2">
               {q.options.map((opt) => (
-                <OptButton key={opt} opt={opt} status={status} chosen={choice} answer={q.answer} big onClick={() => status === "answering" && setChoice(opt)} />
+                <OptButton key={opt} opt={spaceOut(opt)} realValue={opt} status={status} chosen={choice} answer={q.answer} big onClick={() => status === "answering" && setChoice(opt)} />
               ))}
             </div>
           </>
@@ -249,8 +250,10 @@ export default function WeekTest({ week }: { week: number }) {
               {t("test.correctWas")}{" "}
               <b>
                 {q.kind === "sentence"
-                  ? (q as Extract<Question, { kind: "sentence" }>).answer.join("")
-                  : (q as Extract<Question, { kind: "kana" | "kana2r" | "register" }>).answer}
+                  ? (q as Extract<Question, { kind: "sentence" }>).answer.join(" ")
+                  : q.kind === "register"
+                    ? spaceOut((q as Extract<Question, { kind: "register" }>).answer)
+                    : (q as Extract<Question, { kind: "kana" | "kana2r" }>).answer}
               </b>
             </p>
           </div>
@@ -287,6 +290,7 @@ export default function WeekTest({ week }: { week: number }) {
 
 function OptButton({
   opt,
+  realValue,
   status,
   chosen,
   answer,
@@ -295,6 +299,8 @@ function OptButton({
   jp,
 }: {
   opt: string;
+  /** Se opt é uma versão exibida (ex.: espaçada), use realValue pra comparar. */
+  realValue?: string;
   status: "answering" | "right" | "wrong";
   chosen: string | null;
   answer: string;
@@ -302,10 +308,11 @@ function OptButton({
   big?: boolean;
   jp?: boolean;
 }) {
+  const key = realValue ?? opt;
   let cls = "bg-stone-100 text-stone-700 hover:bg-sakura-100";
-  if (status === "answering" && chosen === opt) cls = "bg-sakura-500 text-white";
-  else if (status !== "answering" && opt === answer) cls = "bg-emerald-500 text-white";
-  else if (status !== "answering" && chosen === opt) cls = "bg-rose-400 text-white";
+  if (status === "answering" && chosen === key) cls = "bg-sakura-500 text-white";
+  else if (status !== "answering" && key === answer) cls = "bg-emerald-500 text-white";
+  else if (status !== "answering" && chosen === key) cls = "bg-rose-400 text-white";
   const size = jp ? "jp text-3xl font-bold" : big ? "jp text-base" : "text-lg font-semibold";
   return (
     <button onClick={onClick} className={`${size} rounded-2xl px-3 py-3 transition ${cls}`}>

@@ -346,6 +346,360 @@ export const LESSONS: Lesson[] = [
       },
     ],
   },
+
+  // ── Semana 7 · Adjetivos + が ──
+  {
+    id: "l7-1",
+    week: 7,
+    emoji: "🍜",
+    title: { pt: "Adjetivos い: descreva o mundo", en: "い-adjectives: describe the world" },
+    subtitle: { pt: "Como colar um adjetivo antes de です", en: "How to stick an adjective before です" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Adjetivos que terminam em **い** são a maioria: おいしい (gostoso), たかい (caro), たのしい (divertido). Eles vêm ANTES de です, sem mudar em nada.",
+          en: "Adjectives ending in **い** are the majority: おいしい (tasty), たかい (expensive), たのしい (fun). They come BEFORE です, unchanged.",
+        },
+      },
+      {
+        kind: "example",
+        jp: "この ラーメン は おいしい です。",
+        translation: { pt: "Este ramen é gostoso.", en: "This ramen is delicious." },
+      },
+      {
+        kind: "callout",
+        tone: "warn",
+        body: {
+          pt: "Cuidado: NÃO se diz 'おいしい な です' nem 'おいしい だ'. É só おいしい + です, direto.",
+          en: "Careful: you do NOT say 'おいしい な です' or 'おいしい だ'. It's just おいしい + です, direct.",
+        },
+      },
+      {
+        kind: "compare",
+        a: { jp: "この ケーキ は おいしい です", label: { pt: "Este bolo é gostoso", en: "This cake is tasty" } },
+        b: { jp: "この ケーキ は たかい です", label: { pt: "Este bolo é caro", en: "This cake is expensive" } },
+      },
+    ],
+  },
+  {
+    id: "l7-2",
+    week: 7,
+    emoji: "✨",
+    title: { pt: "Adjetivos な: precisam de な pra colar em nome", en: "な-adjectives: need な to attach to a noun" },
+    subtitle: { pt: "Uma classe diferente com regra própria", en: "A different class with its own rule" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Existe outra família — os **な-adjetivos**: きれい (bonito/limpo), しずか (calmo), げんき (bem-disposto), しんせつ (gentil). Sozinhos, também usam です.",
+          en: "There's another family — the **な-adjectives**: きれい (pretty/clean), しずか (quiet), げんき (well), しんせつ (kind). Alone, they also use です.",
+        },
+      },
+      {
+        kind: "example",
+        jp: "この カフェ は しずか です。",
+        translation: { pt: "Este café é calmo.", en: "This café is quiet." },
+      },
+      {
+        kind: "text",
+        body: {
+          pt: "Mas quando você quer colar o adjetivo direto em um nome (adjetivo + nome), precisa do **な** entre eles.",
+          en: "But when you want to stick the adjective directly onto a noun (adjective + noun), you need **な** between them.",
+        },
+      },
+      {
+        kind: "compare",
+        a: { jp: "しずか な カフェ", label: { pt: "um café calmo", en: "a quiet café" } },
+        b: { jp: "しずか です", label: { pt: "é calmo (frase completa)", en: "is quiet (full sentence)" } },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "Como saber? Os い-adj já terminam em い e não pedem partícula. Os な-adj SEMPRE pedem な pra colar em substantivo.",
+          en: "How to tell? い-adj already end in い and need no particle. な-adj ALWAYS need な to attach to a noun.",
+        },
+      },
+    ],
+  },
+  {
+    id: "l7-3",
+    week: 7,
+    emoji: "🤔",
+    title: { pt: "Ligando ideias com が (mas)", en: "Linking ideas with が (but)" },
+    subtitle: { pt: "Duas frases numa só, com contraste", en: "Two sentences in one, with contrast" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Um **が** no meio de duas frases significa 'mas'. É a maneira educada de fazer contraste, mais suave que 'でも' no início.",
+          en: "A **が** between two sentences means 'but'. It's the polite way to contrast, softer than starting with 'でも'.",
+        },
+      },
+      {
+        kind: "example",
+        jp: "にほんご は むずかしい です が、たのしい です。",
+        translation: { pt: "Japonês é difícil, mas divertido.", en: "Japanese is hard, but fun." },
+      },
+      {
+        kind: "callout",
+        tone: "warn",
+        body: {
+          pt: "Cuidado: este が é DIFERENTE do が que marca sujeito. Aqui ele vem colado no fim da 1ª frase, ligando à 2ª.",
+          en: "Careful: this が is DIFFERENT from the subject-marker が. Here it hooks onto the end of the 1st clause to link the 2nd.",
+        },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "Numa conversa, せまい ですが... = 'É apertadinho, mas...' pode até vir sem completar. É um jeito educado de suavizar críticas!",
+          en: "In conversation, せまい ですが... = 'It's cramped, but...' can even hang there. A polite way to soften criticism!",
+        },
+      },
+    ],
+  },
+
+  // ── Semana 8 · Querer + Convidar ──
+  {
+    id: "l8-1",
+    week: 8,
+    emoji: "🍣",
+    title: { pt: "Dizer o que você quer: 〜たい", en: "Saying what you want: 〜たい" },
+    subtitle: { pt: "'Quero fazer X' — no seu próprio verbo", en: "'I want to do X' — in your own verb" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Pegue qualquer verbo em ます, troque ます por **たい** e adicione です. É 'quero fazer isso'.",
+          en: "Take any ます verb, swap ます for **たい** and add です. That's 'I want to do this'.",
+        },
+      },
+      {
+        kind: "compare",
+        a: { jp: "たべます", label: { pt: "como", en: "I eat" } },
+        b: { jp: "たべたい です", label: { pt: "quero comer", en: "I want to eat" } },
+      },
+      {
+        kind: "example",
+        jp: "すし を たべたい です。",
+        translation: { pt: "Quero comer sushi.", en: "I want to eat sushi." },
+      },
+      {
+        kind: "callout",
+        tone: "warn",
+        body: {
+          pt: "Regra social: 〜たい serve pra falar dos SEUS desejos. Pra perguntar o que o outro quer, use 〜たいですか? — mas cuidado, com superiores soa direto demais. Prefira '何がよろしいですか?'.",
+          en: "Social rule: 〜たい talks about YOUR own wants. To ask what someone else wants, use 〜たいですか? — but with superiors it can sound too direct. Prefer '何がよろしいですか?'.",
+        },
+      },
+    ],
+  },
+  {
+    id: "l8-2",
+    week: 8,
+    emoji: "🎟️",
+    title: { pt: "Convidando: 〜ませんか / 〜ましょう", en: "Inviting: 〜ませんか / 〜ましょう" },
+    subtitle: { pt: "Como chamar alguém pra fazer algo com você", en: "How to invite someone to do something with you" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Para convidar, troque ます por **ませんか** (que soa como 'não quer...?', um convite educado). Se aceitou e agora quer marcar, use **ましょう** ('vamos!').",
+          en: "To invite, swap ます for **ませんか** (sounds like 'won't you...?', a polite invitation). Once accepted, use **ましょう** to seal it ('let's!').",
+        },
+      },
+      {
+        kind: "example",
+        jp: "いっしょ に いきませんか？",
+        translation: { pt: "Vamos juntos? (convite)", en: "Won't you come with me? (invitation)" },
+      },
+      {
+        kind: "example",
+        jp: "はい、いきましょう！",
+        translation: { pt: "Sim, vamos!", en: "Yes, let's go!" },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "Entre amigos, ませんか vira '〜ない？' e ましょう vira '〜よう': 'いかない？' = 'bora?' e 'いこう' = 'bora!'. Casual!",
+          en: "Between friends, ませんか becomes '〜ない？' and ましょう becomes '〜よう': 'いかない？' = 'wanna go?' and 'いこう' = 'let's go!'. Casual!",
+        },
+      },
+    ],
+  },
+
+  // ── Semana 9 · Dar e receber ──
+  {
+    id: "l9-1",
+    week: 9,
+    emoji: "🎁",
+    title: { pt: "Dar, receber: あげる・もらう・くれる", en: "Give, receive: あげる・もらう・くれる" },
+    subtitle: { pt: "A direção do presente importa!", en: "The direction of the gift matters!" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Em japonês, 'dar' tem DUAS palavras conforme a direção: **あげる** (dou a outra pessoa) e **くれる** (alguém me dá). E receber é **もらう**.",
+          en: "In Japanese, 'give' has TWO words based on direction: **あげる** (I give to someone) and **くれる** (someone gives me). And 'receive' is **もらう**.",
+        },
+      },
+      {
+        kind: "compare",
+        a: { jp: "わたし が あげる", label: { pt: "eu dou (pra outro)", en: "I give (to another)" } },
+        b: { jp: "わたし に くれる", label: { pt: "alguém me dá", en: "someone gives me" } },
+      },
+      {
+        kind: "example",
+        jp: "これ を あげます。",
+        translation: { pt: "Vou te dar isto.", en: "I'll give you this." },
+      },
+      {
+        kind: "example",
+        jp: "ともだち に ほん を もらいました。",
+        translation: { pt: "Ganhei um livro de um amigo.", en: "I got a book from a friend." },
+        note: { pt: "com もらう, quem deu leva に.", en: "with もらう, the giver takes に." },
+      },
+      {
+        kind: "callout",
+        tone: "warn",
+        body: {
+          pt: "Erro clássico: usar あげる quando o presente veio PRA você. Se é pra você, é くれる ou もらう!",
+          en: "Classic mistake: using あげる when the gift came TO you. If it's toward you, it's くれる or もらう!",
+        },
+      },
+    ],
+  },
+  {
+    id: "l9-2",
+    week: 9,
+    emoji: "🙏",
+    title: { pt: "Pedir favores: 〜てくれる? / 〜てもらえる?", en: "Asking favors: 〜てくれる? / 〜てもらえる?" },
+    subtitle: { pt: "Como pedir ajuda de forma natural", en: "How to ask for help naturally" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Junte a forma **て** de qualquer verbo com **くれる**? — e o pedido vira 'você faz isso pra mim?'.",
+          en: "Combine any verb's **て**-form with **くれる**? — the request becomes 'will you do this for me?'.",
+        },
+      },
+      {
+        kind: "example",
+        jp: "ちょっと てつだって くれる？",
+        translation: { pt: "Me ajuda um pouquinho?", en: "Can you help me a sec?" },
+      },
+      {
+        kind: "compare",
+        a: { jp: "てつだって ください", label: { pt: "polido: 'Ajude, por favor'", en: "polite: 'Please help'" } },
+        b: { jp: "てつだって くれる？", label: { pt: "casual: 'Me ajuda?'", en: "casual: 'Help me out?'" } },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "Ainda mais educado: 〜ていただけますか — usa com chefe, cliente. A escada de polidez: 〜てくれる? < 〜てください < 〜ていただけますか.",
+          en: "Even more polite: 〜ていただけますか — for bosses, clients. Polite ladder: 〜てくれる? < 〜てください < 〜ていただけますか.",
+        },
+      },
+    ],
+  },
+
+  // ── Semana 10 · Conectar ideias ──
+  {
+    id: "l10-1",
+    week: 10,
+    emoji: "🔗",
+    title: { pt: "Dando motivos: から", en: "Giving reasons: から" },
+    subtitle: { pt: "'Porque isso, então aquilo'", en: "'Because of this, so that'" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "**から** no fim de uma frase = 'porque'. A ordem é [motivo] から [consequência] — na cara oposta do português.",
+          en: "**から** at the end of a clause = 'because'. Order is [reason] から [consequence] — opposite from English's 'because' clause.",
+        },
+      },
+      {
+        kind: "example",
+        jp: "あたま が いたい から、かえります。",
+        translation: { pt: "Estou com dor de cabeça, então vou pra casa.", en: "My head hurts, so I'm going home." },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "Numa conversa você pode responder só o motivo: 'なんで？' → 'あついから' = 'Por quê?' → 'Porque tá quente'.",
+          en: "In conversation you can reply with just the reason: 'なんで？' → 'あついから' = 'Why?' → 'Because it's hot'.",
+        },
+      },
+    ],
+  },
+  {
+    id: "l10-2",
+    week: 10,
+    emoji: "🌀",
+    title: { pt: "Contraste falado: けど", en: "Spoken contrast: けど" },
+    subtitle: { pt: "O 'mas' que aparece na fala real", en: "The 'but' that shows up in real speech" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "Já vimos が = 'mas' (educado, escrito). Na conversa, **けど** faz o mesmo papel, mais leve e falado.",
+          en: "We saw が = 'but' (polite, written). In conversation, **けど** does the same job, lighter and more spoken.",
+        },
+      },
+      {
+        kind: "compare",
+        a: { jp: "たかい ですが、かいます", label: { pt: "É caro, mas vou comprar (educado)", en: "It's expensive, but I'll buy (polite)" } },
+        b: { jp: "たかい けど、かう", label: { pt: "É caro, mas compro (casual)", en: "It's expensive, but I'll buy (casual)" } },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "けど também amacia pedidos: 'いきたい んですけど…' = 'Eu queria ir, mas…' (sugere sem forçar).",
+          en: "けど also softens requests: 'いきたい んですけど…' = 'I'd like to go, but…' (suggests without pushing).",
+        },
+      },
+    ],
+  },
+  {
+    id: "l10-3",
+    week: 10,
+    emoji: "🌉",
+    title: { pt: "A ponte entre registros: 〜んです", en: "The register bridge: 〜んです" },
+    subtitle: { pt: "'んです' explica, pede explicação, cria conexão", en: "'んです' explains, asks for explanation, creates connection" },
+    blocks: [
+      {
+        kind: "text",
+        body: {
+          pt: "**〜んです** é uma das coisas mais úteis do japonês. Cola no fim de qualquer frase pra dizer 'é que...', 'sabe...', 'aconteceu que...'. Sinaliza que há CONTEXTO.",
+          en: "**〜んです** is one of the most useful things in Japanese. Stick it at the end of any sentence to say 'it's that...', 'you see...', 'the thing is...'. It signals CONTEXT.",
+        },
+      },
+      {
+        kind: "compare",
+        a: { jp: "どうしましたか？", label: { pt: "O que houve? (neutro)", en: "What's up? (neutral)" } },
+        b: { jp: "どうした んですか？", label: { pt: "O que houve? (com interesse real)", en: "What's up? (with real interest)" } },
+      },
+      {
+        kind: "example",
+        jp: "あたま が いたい んです。",
+        translation: { pt: "É que estou com dor de cabeça.", en: "The thing is, I have a headache." },
+      },
+      {
+        kind: "callout",
+        tone: "tip",
+        body: {
+          pt: "んです é a PONTE 55/45: educado o suficiente pro trabalho, natural o suficiente entre amigos ('んだ' na versão casual).",
+          en: "んです is the 55/45 BRIDGE: polite enough for work, natural enough between friends ('んだ' in casual).",
+        },
+      },
+    ],
+  },
 ];
 
 export function lessonsForWeek(week: number): Lesson[] {

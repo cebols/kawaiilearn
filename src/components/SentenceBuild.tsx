@@ -141,7 +141,8 @@ export default function SentenceBuild({ week }: { week: number }) {
         {status === "correct" && (
           <div className="pop-in mt-4 rounded-2xl bg-emerald-50 p-3 text-center">
             <p className="jp text-lg font-bold text-emerald-700">
-              {item.tiles.join("")}
+              {/* mostra com espaços (pedagógico); o áudio usa o texto contínuo */}
+              {item.tiles.join(" ")}
               {ttsAvailable() && (
                 <button onClick={() => speak(item.tiles.join(""))} className="ml-2 text-sm">
                   🔊
