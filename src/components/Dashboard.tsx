@@ -6,6 +6,7 @@ import { DIALOGUES } from "../content/dialogues";
 import { WEEKS } from "../content/curriculum";
 import { goalForWeek, dailyPercent } from "../lib/daily";
 import Avatar from "./Avatar";
+import NotificationsCard from "./NotificationsCard";
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
@@ -135,6 +136,9 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {/* nudges espontâneos dos personagens */}
+      <NotificationsCard />
 
       {/* medidor 55/45 */}
       <div className="rounded-3xl bg-white p-6 shadow-sm">

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "./store/useAppStore";
+import { catchUpAndArm } from "./lib/notifications";
 import Dashboard from "./components/Dashboard";
 import CurriculumMap from "./components/CurriculumMap";
 import Flashcards from "./components/Flashcards";
@@ -16,7 +17,17 @@ export default function App() {
 
   useEffect(() => {
     void init();
-  }, [init]);
+    // deep link: /?dialogue=<id> abre a conversa direto (clique numa notificação)
+    const url = new URL(window.location.href);
+    const dlg = url.searchParams.get("dialogue");
+    if (dlg) {
+      go({ name: "dialogue", id: dlg });
+      url.searchParams.delete("dialogue");
+      window.history.replaceState({}, "", url.toString());
+    }
+    // dispara nudges atrasados e agenda o próximo
+    void catchUpAndArm();
+  }, [init, go]);
 
   const toggleLang = () => i18n.changeLanguage(i18n.language.startsWith("pt") ? "en-US" : "pt-BR");
 

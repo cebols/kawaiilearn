@@ -141,5 +141,17 @@
     "hana": { "role": "your sweet neighbor", "bio": "An obaachan who gives you tangerines and speaks warm, unhurried polite Japanese." },
     "aiko": { "role": "your teacher", "bio": "Explains everything patiently and shows you when to use each register." }
   },
+  "notif": {
+    "title": "Let your friends reach out 🌸",
+    "sub": "Yuki, Kenji, Hana, Aiko and your crush can drop a line during the day — each at the time that fits them.",
+    "rule1": "At most 2 messages a day — no spam.",
+    "rule2": "Nothing between 10pm and 7am — respects your sleep.",
+    "rule3": "Every character only pings you at their in-character hours.",
+    "enable": "Enable notifications",
+    "denied": "Notifications are blocked in your browser settings. Reopen the permission for KawaiiLearn and come back.",
+    "onTitle": "Notifications on 🔔",
+    "onSub": "Your friends will reach out at natural hours. To turn off, use your browser settings.",
+    "sample": "Send a sample now"
+  },
   "lang": { "switch": "Português" }
 }

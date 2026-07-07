@@ -141,5 +141,17 @@
     "hana": { "role": "sua vizinha querida", "bio": "Obaachan que te dá tangerinas e fala um polido acolhedor e pausado." },
     "aiko": { "role": "sua professora", "bio": "Explica tudo com paciência e te mostra quando usar cada registro." }
   },
+  "notif": {
+    "title": "Deixe seus amigos te chamarem 🌸",
+    "sub": "Yuki, Kenji, Hana, Aiko e a paquera podem te mandar uma mensagem ao longo do dia, cada um no horário que combina com ele.",
+    "rule1": "No máximo 2 mensagens por dia — sem spam.",
+    "rule2": "Nada entre 22h e 7h — respeita seu sono.",
+    "rule3": "Cada personagem só te chama no horário que faz sentido pra ele.",
+    "enable": "Ativar notificações",
+    "denied": "As notificações estão bloqueadas nas configurações do seu navegador. Reabra a permissão para o KawaiiLearn e volta aqui.",
+    "onTitle": "Notificações ativas 🔔",
+    "onSub": "Seus amigos vão te chamar em horários que fazem sentido. Se quiser desativar, é nas configurações do navegador.",
+    "sample": "Ver uma amostra agora"
+  },
   "lang": { "switch": "English" }
 }
