@@ -388,6 +388,7 @@ function DailySection({
         <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-stone-400">{t("home.quickActions")}</p>
         <div className="flex flex-wrap gap-2">
           <SecondaryLink icon="🎤" label={t("home.speakAction")} onClick={() => go({ name: "shadow", week: currentWeek })} />
+          <SecondaryLink icon="🔢" label={t("home.numbersAction")} onClick={() => go({ name: "numbers" })} />
           <SecondaryLink icon="✍️" label={t("home.traceAction")} onClick={() => go({ name: "trace" })} />
           <SecondaryLink icon="🗺️" label={t("nav.curriculum")} onClick={() => go({ name: "curriculum" })} />
         </div>

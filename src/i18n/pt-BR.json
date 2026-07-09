@@ -83,6 +83,7 @@
     "goalConvos": "Ter uma conversa",
     "goalSpeak": "Falar frases",
     "speakAction": "Praticar fala",
+    "numbersAction": "Números",
     "remaining": "faltam",
     "completed": "concluído"
   },
@@ -132,6 +133,25 @@
     "failedSub": "Você errou {{n}} de {{total}}. Regra da casa: passar exige 100%.",
     "failedHint": "Revisar por 5 minutos antes de refazer geralmente resolve. O teste é sempre montado do zero, com novo embaralhamento.",
     "retry": "Refazer o teste"
+  },
+  "numbers": {
+    "title": "Números e dinheiro",
+    "subtitle": "Onde 90% dos turistas travam. Preços, horas e contadores — até sair no automático.",
+    "modePrice": "Preços",
+    "modeHear": "Ouvir",
+    "modeTime": "Horas",
+    "modeCounter": "Contar",
+    "sayPrice": "Diga este preço em japonês:",
+    "sayTime": "Diga esta hora em japonês:",
+    "hearPrompt": "Ouça o preço e digite em números:",
+    "counterPrompt": "Como se diz…",
+    "sayBtn": "Falar",
+    "reveal": "Ver resposta",
+    "next": "Próximo",
+    "tryAgain": "✗ Não foi esse valor — ouve de novo!",
+    "micMiss": "Não bateu — vê a resposta e tenta de novo.",
+    "timeHint": "💡 30 minutos = はん (metade). 4h = よじ, 9h = くじ — as horas irregulares!",
+    "counterHint": "💡 Contadores mudam com o que você conta: pessoas, copos, ingressos, garrafas…"
   },
   "scenario": {
     "eyebrow": "Modo viagem",

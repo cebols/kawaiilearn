@@ -83,6 +83,7 @@
     "goalConvos": "Have a conversation",
     "goalSpeak": "Speak phrases",
     "speakAction": "Speaking practice",
+    "numbersAction": "Numbers",
     "remaining": "left",
     "completed": "done"
   },
@@ -132,6 +133,25 @@
     "failedSub": "You missed {{n}} of {{total}}. House rule: passing needs 100%.",
     "failedHint": "A quick 5-minute review before retrying usually does it. The test is rebuilt from scratch with fresh shuffling every time.",
     "retry": "Retake the test"
+  },
+  "numbers": {
+    "title": "Numbers and money",
+    "subtitle": "Where 90% of tourists freeze. Prices, times and counters — until they're automatic.",
+    "modePrice": "Prices",
+    "modeHear": "Listen",
+    "modeTime": "Times",
+    "modeCounter": "Count",
+    "sayPrice": "Say this price in Japanese:",
+    "sayTime": "Say this time in Japanese:",
+    "hearPrompt": "Listen to the price and type it in digits:",
+    "counterPrompt": "How do you say…",
+    "sayBtn": "Speak",
+    "reveal": "Show answer",
+    "next": "Next",
+    "tryAgain": "✗ Not that amount — listen again!",
+    "micMiss": "Didn't match — check the answer and retry.",
+    "timeHint": "💡 30 minutes = はん (half). 4:00 = よじ, 9:00 = くじ — the irregular hours!",
+    "counterHint": "💡 Counters change with what you count: people, cups, tickets, bottles…"
   },
   "scenario": {
     "eyebrow": "Travel mode",

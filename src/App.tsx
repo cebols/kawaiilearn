@@ -14,6 +14,7 @@ import WeekTest from "./components/WeekTest";
 import LessonView from "./components/LessonView";
 import SpeechShadow from "./components/SpeechShadow";
 import ScenarioPlay from "./components/ScenarioPlay";
+import NumberDrill from "./components/NumberDrill";
 import Onboarding from "./components/Onboarding";
 
 export default function App() {
@@ -69,6 +70,7 @@ export default function App() {
         {view.name === "lesson" && <LessonView id={view.id} key={view.id} />}
         {view.name === "shadow" && <SpeechShadow week={view.week} key={`shadow-${view.week}`} />}
         {view.name === "scenario" && <ScenarioPlay id={view.id} key={view.id} />}
+        {view.name === "numbers" && <NumberDrill />}
         {view.name === "dialogues" && <DialogueList />}
         {view.name === "dialogue" && <ChatDialogue id={view.id} key={view.id} />}
       </main>
