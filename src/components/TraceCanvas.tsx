@@ -1,30 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { HIRAGANA } from "../content/hiragana";
-import STROKES from "../content/strokes/hiragana.json";
+import { kanaDeck, KANA_DECKS } from "../content/decks";
 import { speak, ttsAvailable } from "../lib/tts";
+import type { KanaItem } from "../types";
+
+/** Agrupa em linhas gojūon (あ, か, さ…) preservando a ordem original. */
+function groupByRow(items: KanaItem[]): KanaItem[][] {
+  const groups: KanaItem[][] = [];
+  const index = new Map<string, number>();
+  for (const it of items) {
+    let g = index.get(it.row);
+    if (g === undefined) {
+      g = groups.length;
+      index.set(it.row, g);
+      groups.push([]);
+    }
+    groups[g].push(it);
+  }
+  return groups;
+}
 
 const SIZE = 280;
 /** viewBox padrão do KanjiVG */
 const VB = 109;
 
-type StrokeData = Record<string, { p: string[]; n: number[][] }>;
-const strokeData: StrokeData = STROKES;
-
 /**
- * Prática kinestésica: modelo com ordem de traços do KanjiVG
+ * Prática kinesthésica: modelo com ordem de traços do KanjiVG
  * (números + seta de direção em cada traço, com animação), e o
- * usuário traça por cima com dedo/mouse.
+ * usuário traça por cima com dedo/mouse. Alterna hiragana/katakana.
  */
 export default function TraceCanvas() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
+  const [deckId, setDeckId] = useState("hiragana");
   const [idx, setIdx] = useState(0);
   const [hasInk, setHasInk] = useState(false);
   const [animKey, setAnimKey] = useState(0);
+  const lang = i18n.language.startsWith("pt") ? "pt" : "en";
+  const deck = kanaDeck(deckId);
+  const HIRAGANA = deck.items;
   const item = HIRAGANA[idx];
-  const strokes = strokeData[item.kana];
+  const strokes = deck.strokes[item.kana];
 
   const clear = () => {
     const ctx = canvasRef.current?.getContext("2d");
@@ -75,6 +92,24 @@ export default function TraceCanvas() {
     <div className="mx-auto max-w-md pop-in text-center">
       <h2 className="text-2xl font-bold text-stone-800">{t("trace.title")} ✍️</h2>
       <p className="mt-1 text-sm text-stone-500">{t("trace.instructions")}</p>
+
+      {/* seletor de silabário */}
+      <div className="mt-3 inline-flex rounded-full bg-stone-100 p-1 text-sm font-semibold">
+        {Object.values(KANA_DECKS).map((d) => (
+          <button
+            key={d.id}
+            onClick={() => {
+              setDeckId(d.id);
+              setIdx(0);
+            }}
+            className={`rounded-full px-4 py-1.5 transition ${
+              deckId === d.id ? "bg-sakura-500 text-white" : "text-stone-500 hover:text-stone-700"
+            }`}
+          >
+            {d.title[lang]}
+          </button>
+        ))}
+      </div>
 
       <div className="mt-5 rounded-3xl bg-white p-6 shadow-sm">
         <div className="mb-3 flex items-center justify-center gap-3">
@@ -200,18 +235,25 @@ export default function TraceCanvas() {
         <p className="mt-3 text-[9px] text-stone-300">{t("trace.attribution")}</p>
       </div>
 
-      {/* seletor rápido */}
-      <div className="mt-4 flex flex-wrap justify-center gap-1.5">
-        {HIRAGANA.map((h, i) => (
-          <button
-            key={h.id}
-            onClick={() => setIdx(i)}
-            className={`jp h-9 w-9 rounded-lg text-sm transition ${
-              i === idx ? "bg-sakura-500 text-white" : "bg-white text-stone-600 shadow-sm hover:bg-sakura-100"
-            }`}
-          >
-            {h.kana}
-          </button>
+      {/* seletor rápido, agrupado em linhas gojūon (5 por linha por fonema) */}
+      <div className="mt-4 space-y-1.5">
+        {groupByRow(HIRAGANA).map((group) => (
+          <div key={group[0].row} className="mx-auto grid max-w-[240px] grid-cols-5 gap-1.5">
+            {group.map((h) => {
+              const i = HIRAGANA.indexOf(h);
+              return (
+                <button
+                  key={h.id}
+                  onClick={() => setIdx(i)}
+                  className={`jp h-9 w-9 rounded-lg text-sm transition ${
+                    i === idx ? "bg-sakura-500 text-white" : "bg-white text-stone-600 shadow-sm hover:bg-sakura-100"
+                  }`}
+                >
+                  {h.kana}
+                </button>
+              );
+            })}
+          </div>
         ))}
       </div>
     </div>
