@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { numberToKana, yenToKana, timeToKana, randomPrice, randomTime, COUNTERS } from "../lib/jaNumbers";
+import { yenToKana, timeToKana, randomPrice, randomTime, COUNTERS } from "../lib/jaNumbers";
 import { speak, ttsAvailable } from "../lib/tts";
 import { listen, stopListening, speechAvailable } from "../lib/speech";
 import { useAppStore } from "../store/useAppStore";
