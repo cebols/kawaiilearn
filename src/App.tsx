@@ -35,19 +35,22 @@ export default function App() {
   const toggleLang = () => i18n.changeLanguage(i18n.language.startsWith("pt") ? "en-US" : "pt-BR");
 
   return (
-    <div className="min-h-dvh pb-24">
+    <div className="min-h-dvh bg-gradient-to-b from-sakura-50/40 via-sakura-50/20 to-white pb-24">
       {profile === null && <Onboarding />}
-      <header className="sticky top-0 z-10 border-b border-sakura-100 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <button onClick={() => go({ name: "home" })} className="text-left">
-            <h1 className="whitespace-nowrap text-lg font-extrabold text-sakura-600">
-              🌸 KawaiiLearn <span className="jp text-sm font-normal text-stone-400">日本語</span>
-            </h1>
-            <p className="hidden text-[10px] text-stone-400 sm:block">{t("app.tagline")}</p>
+      <header className="sticky top-0 z-10 border-b border-sakura-100/70 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-2.5">
+          <button onClick={() => go({ name: "home" })} className="flex items-center gap-2 text-left">
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-sakura-100 text-lg">🌸</span>
+            <div className="leading-tight">
+              <h1 className="whitespace-nowrap text-[15px] font-extrabold tracking-tight text-sakura-600">
+                KawaiiLearn <span className="jp text-[11px] font-normal text-stone-400">日本語</span>
+              </h1>
+              <p className="hidden text-[9px] font-medium text-stone-400 sm:block">{t("app.tagline")}</p>
+            </div>
           </button>
           <button
             onClick={toggleLang}
-            className="rounded-full bg-stone-100 px-3 py-1.5 text-xs font-semibold text-stone-600 transition hover:bg-stone-200"
+            className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-stone-600 shadow-sm transition hover:border-sakura-200 hover:bg-sakura-50"
           >
             🌐 {t("lang.switch")}
           </button>
@@ -67,8 +70,8 @@ export default function App() {
       </main>
 
       {/* navegação inferior (mobile-first, estilo app) */}
-      <nav className="fixed inset-x-0 bottom-0 border-t border-sakura-100 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl justify-around py-2">
+      <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-sakura-100/70 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-3xl justify-around px-1 py-1.5" style={{ paddingBottom: "max(0.375rem, env(safe-area-inset-bottom))" }}>
           <NavBtn active={view.name === "home"} icon="🏠" label={t("nav.home")} onClick={() => go({ name: "home" })} />
           <NavBtn active={view.name === "curriculum"} icon="🗺️" label={t("nav.curriculum")} onClick={() => go({ name: "curriculum" })} />
           <NavBtn active={view.name === "flashcards"} icon="🎴" label={t("nav.flashcards")} onClick={() => go({ name: "flashcards", deck: deckForWeek(currentWeek) })} />
@@ -85,12 +88,15 @@ function NavBtn({ active, icon, label, onClick }: { active: boolean; icon: strin
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-1 text-[10px] font-semibold transition ${
+      className={`relative flex flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[10px] font-semibold transition ${
         active ? "text-sakura-600" : "text-stone-400 hover:text-stone-600"
       }`}
     >
-      <span className="text-lg">{icon}</span>
-      {label}
+      {active && (
+        <span className="absolute -top-1.5 left-1/2 h-1 w-8 -translate-x-1/2 rounded-b-full bg-sakura-500" aria-hidden />
+      )}
+      <span className={`text-xl transition ${active ? "scale-110" : ""}`}>{icon}</span>
+      <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
     </button>
   );
 }

@@ -1,20 +1,24 @@
 import { useTranslation } from "react-i18next";
-import { useAppStore, suggestedPace } from "../store/useAppStore";
+import type { TFunction } from "i18next";
+import { useAppStore } from "../store/useAppStore";
+
+// t: aceitamos qualquer chave (string) com valores opcionais — evita conflito de tipos genéricos
+type TFn = TFunction;
 import { VOCAB_W1, registerStats } from "../content/vocab";
 import { castFor } from "../content/characters";
 import { DIALOGUES } from "../content/dialogues";
-import { WEEKS } from "../content/curriculum";
-import { goalForWeek, dailyPercent } from "../lib/daily";
+import { WEEKS, PHASES } from "../content/curriculum";
+import { goalForWeek, dailyPercent, type DailyProgress } from "../lib/daily";
 import { testAvailable } from "../content/weekTests";
 import { lessonsForWeek } from "../content/lessons";
 import { deckForWeek, kanaDeck } from "../content/decks";
 import Avatar from "./Avatar";
 import NotificationsCard from "./NotificationsCard";
+import type { View } from "../store/useAppStore";
 
 export default function Dashboard() {
   const { t, i18n } = useTranslation();
-  const { stats, streak, startedAt, go, profile, daily, completedDialogues, currentWeek } = useAppStore();
-  const paceCalendar = suggestedPace(startedAt);
+  const { stats, streak, go, profile, daily, completedDialogues, currentWeek } = useAppStore();
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const cast = castFor(profile?.crush ?? "haruto");
   const goal = goalForWeek(currentWeek);
@@ -24,292 +28,512 @@ export default function Dashboard() {
   const deckId = deckForWeek(currentWeek);
   const deckTitle = kanaDeck(deckId).title[lang];
   const readyForTest = pct >= 100 && testAvailable(currentWeek) && currentWeek < 20;
-  // usa como referência apenas para saudar quem está muito adiantado no calendário
-  const aheadOfCalendar = currentWeek > paceCalendar.week + 1;
 
-  // equilíbrio de registro: baseado no que VOCÊ praticou (conversas concluídas);
-  // sem prática ainda, mostra a mistura do conteúdo da semana como referência
-  const practiced = DIALOGUES.filter((d) => completedDialogues.has(d.id));
-  let reg: { polite: number; casual: number };
-  let regFromPractice = practiced.length > 0;
-  if (regFromPractice) {
-    let pol = 0;
-    let cas = 0;
-    for (const d of practiced) {
-      if (d.register === "polite") pol++;
-      else if (d.register === "casual") cas++;
-      else {
-        pol += 0.5;
-        cas += 0.5;
-      }
-    }
-    reg = { polite: Math.round((pol / (pol + cas)) * 100), casual: Math.round((cas / (pol + cas)) * 100) };
-  } else {
-    reg = registerStats(VOCAB_W1);
-  }
-  // status baseado em mastery: acúmulo de revisões atrasa, o resto é livre
-  const paceStatus = stats.due > 25 ? "behind" : aheadOfCalendar ? "ahead" : "onTrack";
+  const reg = computeRegister(completedDialogues);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 pop-in">
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-stone-800">{t("home.greeting")} 🌸</h2>
-        <p className="mt-1 text-sm text-stone-500">
-          {t("home.atWeek", { week: currentWeek })} · {t(`home.${paceStatus}`)}
-        </p>
-        <p className="mt-1 text-xs text-stone-400">{t("home.freePace")}</p>
+    <div className="mx-auto max-w-3xl space-y-5 pop-in">
+      {/* ── faixa: streak + medidor de registro compactos ── */}
+      <TopStrip streak={streak} due={stats.due} reg={reg.reg} regFromPractice={reg.fromPractice} t={t} />
 
-        <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-          <Stat value={stats.due} label={t("home.dueCards")} color="text-sakura-600" />
-          <Stat value={stats.fresh} label={t("home.newCards")} color="text-violet-600" />
-          <Stat value={streak} label={t("home.streak")} color="text-amber-500" />
-        </div>
+      {/* ── trilha das 20 semanas ── */}
+      <WeekTrack currentWeek={currentWeek} onPick={() => go({ name: "curriculum" })} weekTitle={week?.title[lang]} lang={lang} t={t} />
 
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button
-            onClick={() => go({ name: "flashcards", deck: deckId })}
-            className="rounded-full bg-sakura-500 px-6 py-2.5 font-semibold text-white shadow transition hover:bg-sakura-600"
-          >
-            {stats.due > 0 ? t("home.startReview") : `${t("home.learnNew")} · ${deckTitle}`}
-          </button>
-          <button
-            onClick={() => go({ name: "trace" })}
-            className="rounded-full bg-violet-100 px-6 py-2.5 font-semibold text-violet-700 transition hover:bg-violet-200"
-          >
-            ✍️ {t("home.traceAction")}
-          </button>
-          <button
-            onClick={() => go({ name: "dialogues" })}
-            className="rounded-full bg-emerald-100 px-6 py-2.5 font-semibold text-emerald-700 transition hover:bg-emerald-200"
-          >
-            💬 {t("home.dialogueAction")}
-          </button>
-        </div>
-      </div>
+      {/* ── HERO CTA contextual ── */}
+      <HeroCTA
+        readyForTest={readyForTest}
+        lessons={lessons}
+        goal={goal}
+        daily={daily}
+        currentWeek={currentWeek}
+        deckId={deckId}
+        deckTitle={deckTitle}
+        go={go}
+        lang={lang}
+        t={t}
+      />
 
-      {/* semana batida → convite para o teste de passagem */}
-      {readyForTest && (
-        <div className="pop-in rounded-3xl bg-gradient-to-br from-amber-100 via-sakura-100 to-violet-100 p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="text-3xl">🏯</span>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-extrabold text-stone-800">{t("home.testReadyTitle")}</h3>
-              <p className="mt-1 text-sm text-stone-600">{t("home.testReadySub", { week: currentWeek })}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => go({ name: "weekTest", week: currentWeek })}
-            className="mt-4 w-full rounded-full bg-stone-900 py-3 font-semibold text-white transition hover:bg-stone-700"
-          >
-            🎯 {t("home.testReadyCta", { week: currentWeek })}
-          </button>
-        </div>
-      )}
+      {/* ── meta do dia + ações rápidas ── */}
+      <DailySection
+        pct={pct}
+        goal={goal}
+        daily={daily}
+        currentWeek={currentWeek}
+        deckId={deckId}
+        deckTitle={deckTitle}
+        go={go}
+        t={t}
+      />
 
-      {/* meta do dia: barra de progresso + checklist (só as trilhas que existem na semana atual) */}
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div>
-            <h3 className="font-bold text-stone-700">{t("home.dailyGoal")}</h3>
-            {week && (
-              <p className="text-[11px] font-semibold text-stone-400">
-                {t("curriculum.week")} {currentWeek} · {week.title[lang]}
-              </p>
-            )}
-          </div>
-          <span className="text-sm font-bold text-sakura-600">{pct}%</span>
-        </div>
-        <div className="mt-3 h-3 overflow-hidden rounded-full bg-stone-100">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-sakura-400 to-sakura-600 transition-all duration-500"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <p className="mt-2 text-xs text-stone-400">
-          {pct >= 100 ? t("home.goalDone") : t("home.goalHint")}
-        </p>
-        <div className="mt-4 space-y-2">
-          {goal.cards > 0 && (
-            <GoalRow
-              icon="🎴"
-              label={t("home.goalCards")}
-              done={daily.cards}
-              goal={goal.cards}
-              onClick={() => go({ name: "flashcards", deck: deckId })}
-              remainLabel={t("home.remaining")}
-              doneLabel={t("home.completed")}
-              detail={deckTitle}
-            />
-          )}
-          {goal.sentences > 0 && (
-            <GoalRow
-              icon="🧩"
-              label={t("home.goalSentences")}
-              done={daily.sentences}
-              goal={goal.sentences}
-              onClick={() => go({ name: "sentences", week: currentWeek })}
-              remainLabel={t("home.remaining")}
-              doneLabel={t("home.completed")}
-            />
-          )}
-          {goal.convos > 0 && (
-            <GoalRow
-              icon="💬"
-              label={t("home.goalConvos")}
-              done={daily.convos}
-              goal={goal.convos}
-              onClick={() => go({ name: "dialogues" })}
-              remainLabel={t("home.remaining")}
-              doneLabel={t("home.completed")}
-            />
-          )}
-        </div>
-      </div>
+      {/* ── social: elenco compacto + link notif ── */}
+      <SocialBlock cast={cast} go={go} t={t} />
 
-      {/* lições de gramática da semana (só a partir da 3, quando aparece gramática) */}
-      {lessons.length > 0 && (
-        <div className="rounded-3xl bg-gradient-to-br from-amber-50 to-sakura-50 p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">📖</span>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-extrabold text-stone-800">{t("home.lessonsTitle", { week: currentWeek })}</h3>
-              <p className="mt-1 text-xs text-stone-500">{t("home.lessonsSub")}</p>
-            </div>
-          </div>
-          <div className="mt-3 space-y-2">
-            {lessons.map((l) => (
-              <button
-                key={l.id}
-                onClick={() => go({ name: "lesson", id: l.id })}
-                className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:shadow-md"
-              >
-                <span className="text-xl">{l.emoji}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-stone-800">{l.title[lang]}</p>
-                  <p className="truncate text-[11px] text-stone-500">{l.subtitle[lang]}</p>
-                </div>
-                <span className="text-stone-300">→</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* nudges espontâneos dos personagens */}
+      {/* ── notificações (colapsado se ainda não ativou) ── */}
       <NotificationsCard />
+    </div>
+  );
+}
 
-      {/* medidor 55/45 */}
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-bold text-stone-700">{t("home.registerMeter")}</h3>
-          <span
-            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-              regFromPractice ? "bg-emerald-50 text-emerald-700" : "bg-stone-100 text-stone-500"
-            }`}
-          >
-            {regFromPractice
-              ? t("home.regFromPractice", { n: practiced.length })
-              : t("home.regFromContent")}
+// ═══════════════ TOP STRIP ═══════════════
+function TopStrip({
+  streak,
+  due,
+  reg,
+  regFromPractice,
+  t,
+}: {
+  streak: number;
+  due: number;
+  reg: { polite: number; casual: number };
+  regFromPractice: boolean;
+  t: TFn;
+}) {
+  return (
+    <div className="rounded-2xl border border-sakura-100 bg-white/70 p-3 shadow-sm backdrop-blur">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5">
+          <span className="text-lg">🔥</span>
+          <span className="text-lg font-extrabold tabular-nums text-amber-500">{streak}</span>
+          <span className="text-[10px] text-stone-500">{t("home.streak")}</span>
+        </div>
+        <div className="hidden items-center gap-1.5 sm:flex">
+          <span className="text-lg">🎴</span>
+          <span className="text-lg font-extrabold tabular-nums text-sakura-600">{due}</span>
+          <span className="text-[10px] text-stone-500">{t("home.dueCards")}</span>
+        </div>
+        <div className="ml-auto min-w-0 flex-1 sm:max-w-[210px]">
+          <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-wider text-stone-500">
+            <span>🎩 {reg.polite}%</span>
+            <span
+              className={`rounded-full px-1.5 py-0.5 text-[8px] font-semibold ${
+                regFromPractice ? "bg-emerald-50 text-emerald-700" : "bg-stone-100 text-stone-500"
+              }`}
+            >
+              {regFromPractice ? t("home.regTagPractice") : t("home.regTagSample")}
+            </span>
+            <span>{reg.casual}% 🎉</span>
+          </div>
+          <div className="mt-1 flex h-2 overflow-hidden rounded-full">
+            <div className="bg-indigo-400" style={{ width: `${reg.polite}%` }} />
+            <div className="bg-sakura-400" style={{ width: `${reg.casual}%` }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════ WEEK TRACK — a trilha de 20 pontos ═══════════════
+function WeekTrack({
+  currentWeek,
+  onPick,
+  weekTitle,
+  lang,
+  t,
+}: {
+  currentWeek: number;
+  onPick: () => void;
+  weekTitle?: string;
+  lang: "pt" | "en";
+  t: TFn;
+}) {
+  return (
+    <button onClick={() => onPick()} className="block w-full text-left">
+      <div className="rounded-2xl border border-sakura-100 bg-white p-4 shadow-sm transition hover:shadow-md">
+        <div className="flex items-baseline justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-sakura-600">
+              {t("home.trailEyebrow", { week: currentWeek })}
+            </p>
+            <p className="mt-0.5 truncate text-base font-bold text-stone-800">{weekTitle ?? ""}</p>
+          </div>
+          <span className="shrink-0 rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-600 tabular-nums">
+            {currentWeek}/20
           </span>
         </div>
-        <div className="mt-3 flex h-5 overflow-hidden rounded-full text-[10px] font-bold text-white">
-          <div className="flex items-center justify-center bg-indigo-400" style={{ width: `${reg.polite}%` }}>
-            {reg.polite}%
-          </div>
-          <div className="flex items-center justify-center bg-sakura-400" style={{ width: `${reg.casual}%` }}>
-            {reg.casual}%
-          </div>
-        </div>
-        <div className="mt-1.5 flex justify-between text-xs text-stone-500">
-          <span>🎩 {t("home.polite")} (です・ます)</span>
-          <span>{t("home.casual")} (タメ口) 🎉</span>
-        </div>
-        <p className="mt-2 text-[11px] text-stone-400">{t("home.regHint")}</p>
-      </div>
 
-      {/* elenco */}
-      <div className="rounded-3xl bg-white p-6 shadow-sm">
-        <h3 className="font-bold text-stone-700">{t("dialogue.friendsTitle")}</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {cast.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => go({ name: "dialogues" })}
-              className="flex items-center gap-3 rounded-2xl border border-stone-100 p-3 text-left transition hover:border-sakura-200 hover:bg-sakura-50"
-            >
-              <Avatar c={c} />
-              <div className="min-w-0">
-                <p className="font-semibold text-stone-800">
-                  {c.name} <span className="jp text-xs text-stone-400">{c.nameJp}</span> {c.emoji}
-                </p>
-                <p className="truncate text-xs text-stone-500">{t(`chars.${c.id}.role`)}</p>
-                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wide" style={{ color: c.accent }}>
-                  {c.register === "polite" ? t("dialogue.polite") : c.register === "casual" ? t("dialogue.casual") : "〜"}
-                </p>
-              </div>
-            </button>
+        {/* 20 pontinhos coloridos por fase */}
+        <div className="mt-3 flex items-center gap-[3px]">
+          {WEEKS.map((w) => {
+            const isPast = w.num < currentWeek;
+            const isCurrent = w.num === currentWeek;
+            const color = PHASES[w.phase].color;
+            return (
+              <div
+                key={w.num}
+                className={`h-2 flex-1 rounded-full transition ${
+                  isCurrent ? "h-3 ring-2 ring-sakura-400 ring-offset-1" : ""
+                }`}
+                style={{
+                  background: isPast || isCurrent ? color : "#e7e5e4",
+                  opacity: isPast ? 0.7 : 1,
+                }}
+                title={`${t("curriculum.week")} ${w.num} — ${w.title[lang]}`}
+              />
+            );
+          })}
+        </div>
+
+        {/* legenda das fases */}
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[9px] text-stone-500">
+          {Object.entries(PHASES).map(([n, p]) => (
+            <span key={n} className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: p.color }} />
+              {p[lang]}
+            </span>
           ))}
         </div>
-        <p className="mt-3 text-xs text-stone-400">
-          {lang === "pt"
-            ? "Cada amigo vive num registro — conversar com todos treina a barra inteira."
-            : "Each friend lives in one register — chatting with everyone trains the whole bar."}
-        </p>
+      </div>
+    </button>
+  );
+}
+
+// ═══════════════ HERO CTA — 1 grande ação contextual ═══════════════
+type CTAKind = "test" | "lesson" | "cards" | "chat" | "sentences" | "done";
+interface CTAConfig {
+  kind: CTAKind;
+  icon: string;
+  title: string;
+  sub: string;
+  cta: string;
+  view: View;
+  gradient: string;
+}
+
+function HeroCTA({
+  readyForTest,
+  lessons,
+  goal,
+  daily,
+  currentWeek,
+  deckId,
+  deckTitle,
+  go,
+  lang,
+  t,
+}: {
+  readyForTest: boolean;
+  lessons: ReturnType<typeof lessonsForWeek>;
+  goal: ReturnType<typeof goalForWeek>;
+  daily: DailyProgress;
+  currentWeek: number;
+  deckId: string;
+  deckTitle: string;
+  go: (v: View) => void;
+  lang: "pt" | "en";
+  t: TFn;
+}) {
+  // Prioridade da CTA: teste > lição pendente > cards abaixo da meta > frases abaixo > conversa > done
+  const cfg: CTAConfig = readyForTest
+    ? {
+        kind: "test",
+        icon: "🏯",
+        title: t("home.ctaTest.title", { week: currentWeek }),
+        sub: t("home.ctaTest.sub"),
+        cta: t("home.ctaTest.button"),
+        view: { name: "weekTest", week: currentWeek },
+        gradient: "from-amber-100 via-sakura-100 to-violet-100",
+      }
+    : lessons.length > 0
+      ? {
+          kind: "lesson",
+          icon: lessons[0].emoji,
+          title: t("home.ctaLesson.title"),
+          sub: lessons[0].title[lang],
+          cta: t("home.ctaLesson.button"),
+          view: { name: "lesson", id: lessons[0].id },
+          gradient: "from-amber-50 to-sakura-100",
+        }
+      : goal.cards > 0 && daily.cards < goal.cards
+        ? {
+            kind: "cards",
+            icon: "🎴",
+            title: t("home.ctaCards.title"),
+            sub: t("home.ctaCards.sub", { deck: deckTitle, done: daily.cards, total: goal.cards }),
+            cta: t("home.ctaCards.button"),
+            view: { name: "flashcards", deck: deckId },
+            gradient: "from-sakura-100 to-violet-100",
+          }
+        : goal.sentences > 0 && daily.sentences < goal.sentences
+          ? {
+              kind: "sentences",
+              icon: "🧩",
+              title: t("home.ctaSentences.title"),
+              sub: t("home.ctaSentences.sub", { done: daily.sentences, total: goal.sentences }),
+              cta: t("home.ctaSentences.button"),
+              view: { name: "sentences", week: currentWeek },
+              gradient: "from-violet-100 to-sakura-100",
+            }
+          : goal.convos > 0 && daily.convos < goal.convos
+            ? {
+                kind: "chat",
+                icon: "💬",
+                title: t("home.ctaChat.title"),
+                sub: t("home.ctaChat.sub"),
+                cta: t("home.ctaChat.button"),
+                view: { name: "dialogues" },
+                gradient: "from-emerald-100 to-sakura-100",
+              }
+            : {
+                kind: "done",
+                icon: "🌸",
+                title: t("home.ctaDone.title"),
+                sub: t("home.ctaDone.sub"),
+                cta: t("home.ctaDone.button"),
+                view: { name: "dialogues" },
+                gradient: "from-emerald-100 via-sakura-100 to-amber-100",
+              };
+
+  const isDark = cfg.kind === "test";
+  return (
+    <button
+      onClick={() => go(cfg.view)}
+      className={`group block w-full rounded-3xl bg-gradient-to-br ${cfg.gradient} p-5 text-left shadow-sm transition hover:shadow-lg`}
+    >
+      <div className="flex items-start gap-4">
+        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-white/80 text-3xl shadow-sm">
+          {cfg.icon}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-600">{t("home.nextStep")}</p>
+          <h2 className="mt-0.5 text-lg font-extrabold leading-tight text-stone-800">{cfg.title}</h2>
+          <p className="mt-1 text-sm text-stone-600">{cfg.sub}</p>
+        </div>
+      </div>
+      <div className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-2.5 font-semibold shadow transition group-hover:translate-y-0"
+        style={isDark ? { background: "#1c1917", color: "#fff" } : { background: "#ec4899", color: "#fff" }}
+      >
+        {cfg.cta} →
+      </div>
+    </button>
+  );
+}
+
+// ═══════════════ DAILY SECTION — meta + atalhos ═══════════════
+function DailySection({
+  pct,
+  goal,
+  daily,
+  currentWeek,
+  deckId,
+  deckTitle,
+  go,
+  t,
+}: {
+  pct: number;
+  goal: ReturnType<typeof goalForWeek>;
+  daily: DailyProgress;
+  currentWeek: number;
+  deckId: string;
+  deckTitle: string;
+  go: (v: View) => void;
+  t: TFn;
+}) {
+  return (
+    <div className="rounded-3xl border border-sakura-100 bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-4">
+        <ProgressRing pct={pct} />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">{t("home.today")}</p>
+          <p className="mt-0.5 text-lg font-bold text-stone-800">
+            {pct >= 100 ? t("home.goalDoneShort") : t("home.goalWorkingShort", { pct })}
+          </p>
+          <p className="text-xs text-stone-500">{t("home.goalHintShort")}</p>
+        </div>
+      </div>
+
+      {/* chips das trilhas */}
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {goal.cards > 0 && (
+          <TrackChip
+            icon="🎴"
+            label={t("home.goalCards")}
+            detail={deckTitle}
+            done={daily.cards}
+            goal={goal.cards}
+            onClick={() => go({ name: "flashcards", deck: deckId })}
+          />
+        )}
+        {goal.sentences > 0 && (
+          <TrackChip
+            icon="🧩"
+            label={t("home.goalSentences")}
+            done={daily.sentences}
+            goal={goal.sentences}
+            onClick={() => go({ name: "sentences", week: currentWeek })}
+          />
+        )}
+        {goal.convos > 0 && (
+          <TrackChip
+            icon="💬"
+            label={t("home.goalConvos")}
+            done={daily.convos}
+            goal={goal.convos}
+            onClick={() => go({ name: "dialogues" })}
+          />
+        )}
+      </div>
+
+      {/* atalhos secundários */}
+      <div className="mt-4 border-t border-stone-100 pt-3">
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-stone-400">{t("home.quickActions")}</p>
+        <div className="flex flex-wrap gap-2">
+          <SecondaryLink icon="✍️" label={t("home.traceAction")} onClick={() => go({ name: "trace" })} />
+          <SecondaryLink icon="🗺️" label={t("nav.curriculum")} onClick={() => go({ name: "curriculum" })} />
+        </div>
       </div>
     </div>
   );
 }
 
-function Stat({ value, label, color }: { value: number; label: string; color: string }) {
-  return (
-    <div className="rounded-2xl bg-stone-50 p-3">
-      <p className={`text-3xl font-extrabold ${color}`}>{value}</p>
-      <p className="text-xs text-stone-500">{label}</p>
-    </div>
-  );
-}
-
-function GoalRow({
+function TrackChip({
   icon,
   label,
+  detail,
   done,
   goal,
   onClick,
-  remainLabel,
-  doneLabel,
-  detail,
 }: {
   icon: string;
   label: string;
+  detail?: string;
   done: number;
   goal: number;
   onClick: () => void;
-  remainLabel: string;
-  doneLabel: string;
-  detail?: string;
 }) {
   const complete = done >= goal;
-  const remaining = Math.max(0, goal - done);
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition ${
-        complete ? "border-emerald-100 bg-emerald-50/50" : "border-stone-100 hover:border-sakura-200 hover:bg-sakura-50"
+      className={`flex items-center gap-2 rounded-2xl border p-2.5 text-left transition ${
+        complete
+          ? "border-emerald-200 bg-emerald-50/60 hover:bg-emerald-50"
+          : "border-stone-100 bg-stone-50/50 hover:border-sakura-200 hover:bg-sakura-50"
       }`}
     >
       <span className="text-lg">{icon}</span>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-stone-700">
-          {label}
-          {detail && <span className="ml-1.5 rounded-full bg-sakura-100 px-1.5 py-0.5 text-[9px] font-bold text-sakura-700">{detail}</span>}
-        </p>
-        <p className="text-xs text-stone-400">
-          {complete ? `✓ ${doneLabel}` : `${remaining} ${remainLabel}`}
-        </p>
+        <p className="truncate text-xs font-bold text-stone-700">{label}</p>
+        {detail && <p className="truncate text-[10px] text-stone-500">{detail}</p>}
       </div>
-      <span className={`text-sm font-bold tabular-nums ${complete ? "text-emerald-600" : "text-stone-400"}`}>
+      <span
+        className={`text-xs font-extrabold tabular-nums ${
+          complete ? "text-emerald-600" : "text-stone-400"
+        }`}
+      >
         {Math.min(done, goal)}/{goal}
       </span>
     </button>
   );
+}
+
+function SecondaryLink({ icon, label, onClick }: { icon: string; label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded-full bg-stone-100 px-3 py-1.5 text-xs font-semibold text-stone-700 transition hover:bg-sakura-100"
+    >
+      <span>{icon}</span> {label}
+    </button>
+  );
+}
+
+// ═══════════════ PROGRESS RING — anel circular pra meta do dia ═══════════════
+function ProgressRing({ pct }: { pct: number }) {
+  const size = 68;
+  const stroke = 8;
+  const radius = (size - stroke) / 2;
+  const circ = 2 * Math.PI * radius;
+  const dash = (Math.min(100, pct) / 100) * circ;
+  return (
+    <div className="relative shrink-0" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={radius} stroke="#f5f5f4" strokeWidth={stroke} fill="none" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="url(#ringGrad)"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${circ}`}
+          fill="none"
+          className="transition-all duration-700"
+        />
+        <defs>
+          <linearGradient id="ringGrad" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0%" stopColor="#f472b6" />
+            <stop offset="100%" stopColor="#db2777" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div className="absolute inset-0 grid place-items-center">
+        <span className="text-sm font-extrabold tabular-nums text-stone-800">{pct}%</span>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════ SOCIAL BLOCK — elenco + link pras conversas ═══════════════
+function SocialBlock({
+  cast,
+  go,
+  t,
+}: {
+  cast: ReturnType<typeof castFor>;
+  go: (v: View) => void;
+  t: TFn;
+}) {
+  return (
+    <div className="rounded-3xl border border-sakura-100 bg-white p-5 shadow-sm">
+      <div className="flex items-baseline justify-between gap-2">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-stone-500">{t("home.friendsEyebrow")}</p>
+          <h3 className="mt-0.5 text-base font-bold text-stone-800">{t("dialogue.friendsTitle")}</h3>
+        </div>
+        <button
+          onClick={() => go({ name: "dialogues" })}
+          className="text-xs font-semibold text-sakura-600 hover:text-sakura-700"
+        >
+          {t("home.seeAll")} →
+        </button>
+      </div>
+      <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+        {cast.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => go({ name: "dialogues" })}
+            className="flex shrink-0 flex-col items-center gap-1"
+            title={c.name}
+          >
+            <Avatar c={c} size={54} />
+            <span className="text-[10px] font-semibold text-stone-700">{c.name}</span>
+            <span className="text-[9px]" style={{ color: c.accent }}>
+              {c.register === "polite" ? "🎩" : c.register === "casual" ? "🎉" : "〜"}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════ helpers ═══════════════
+function computeRegister(completed: Set<string>) {
+  const practiced = DIALOGUES.filter((d) => completed.has(d.id));
+  if (practiced.length === 0) return { reg: registerStats(VOCAB_W1), fromPractice: false };
+  let pol = 0;
+  let cas = 0;
+  for (const d of practiced) {
+    if (d.register === "polite") pol++;
+    else if (d.register === "casual") cas++;
+    else {
+      pol += 0.5;
+      cas += 0.5;
+    }
+  }
+  return {
+    reg: { polite: Math.round((pol / (pol + cas)) * 100), casual: Math.round((cas / (pol + cas)) * 100) },
+    fromPractice: true,
+  };
 }

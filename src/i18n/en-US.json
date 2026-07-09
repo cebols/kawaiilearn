@@ -23,6 +23,45 @@
     "testReadyCta": "Take the week {{week}} test",
     "lessonsTitle": "This week's grammar",
     "lessonsSub": "Read these before the Build Sentences exercise — guessing rarely works. Each one takes just a couple minutes.",
+    "trailEyebrow": "Week {{week}} · Your trail",
+    "nextStep": "Next step",
+    "ctaTest": {
+      "title": "Ready for the week test?",
+      "sub": "You hit 100% of the goal. Pass (100% required) to unlock the next week.",
+      "button": "Take the test"
+    },
+    "ctaLesson": {
+      "title": "Start with grammar",
+      "button": "Read the lesson"
+    },
+    "ctaCards": {
+      "title": "Continue your cards",
+      "sub": "{{done}}/{{total}} in {{deck}} today",
+      "button": "Study cards"
+    },
+    "ctaSentences": {
+      "title": "Build sentences this week",
+      "sub": "{{done}}/{{total}} done today",
+      "button": "Practice"
+    },
+    "ctaChat": {
+      "title": "Chat with a friend",
+      "sub": "One chat today keeps your register sharp.",
+      "button": "Go to chats"
+    },
+    "ctaDone": {
+      "title": "Daily goal hit! 🌸",
+      "sub": "Anything past this is bonus. How about a casual chat?",
+      "button": "Chat"
+    },
+    "today": "Today",
+    "goalDoneShort": "Goal hit — bonus time!",
+    "goalWorkingShort": "{{pct}}% of today's goal",
+    "goalHintShort": "Finish the tracks to stay on par with the week.",
+    "regTagPractice": "practice",
+    "regTagSample": "sample",
+    "friendsEyebrow": "Your circle",
+    "seeAll": "See all",
     "freePace": "Progress is free — this is just the suggested pace to finish the 20 weeks.",
     "registerMeter": "Your register balance",
     "polite": "Polite",

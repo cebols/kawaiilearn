@@ -23,6 +23,45 @@
     "testReadyCta": "Fazer o teste da semana {{week}}",
     "lessonsTitle": "Gramática desta semana",
     "lessonsSub": "Leia estas lições antes do exercício de Montar frases — quem só chuta acerta pouco. Cada uma tem só 2 minutinhos.",
+    "trailEyebrow": "Semana {{week}} · Sua trilha",
+    "nextStep": "Próximo passo",
+    "ctaTest": {
+      "title": "Pronto pro teste da semana?",
+      "sub": "Você bateu 100% da meta. Passe (100% obrigatório) pra destravar a próxima.",
+      "button": "Fazer o teste"
+    },
+    "ctaLesson": {
+      "title": "Comece pela gramática",
+      "button": "Ler a lição"
+    },
+    "ctaCards": {
+      "title": "Continue seus cards",
+      "sub": "{{done}}/{{total}} em {{deck}} hoje",
+      "button": "Estudar cards"
+    },
+    "ctaSentences": {
+      "title": "Monte frases da semana",
+      "sub": "{{done}}/{{total}} feitas hoje",
+      "button": "Praticar"
+    },
+    "ctaChat": {
+      "title": "Converse com um amigo",
+      "sub": "Uma conversa hoje mantém o registro afinado.",
+      "button": "Ir pras conversas"
+    },
+    "ctaDone": {
+      "title": "Meta do dia batida! 🌸",
+      "sub": "Tudo além disso é bônus. Que tal um papo casual?",
+      "button": "Conversar"
+    },
+    "today": "Hoje",
+    "goalDoneShort": "Meta batida — bônus!",
+    "goalWorkingShort": "{{pct}}% da meta do dia",
+    "goalHintShort": "Complete as trilhas pra ficar em dia com a semana.",
+    "regTagPractice": "prática",
+    "regTagSample": "amostra",
+    "friendsEyebrow": "Sua rede",
+    "seeAll": "Ver todos",
     "freePace": "O progresso é livre — esse é só o ritmo sugerido para completar as 20 semanas.",
     "registerMeter": "Seu equilíbrio de registro",
     "polite": "Polido",
