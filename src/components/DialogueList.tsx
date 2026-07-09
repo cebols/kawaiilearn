@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { DIALOGUES, CHAR_ORDER } from "../content/dialogues";
 import { SCENARIOS } from "../content/scenarios";
+import { SLOT_TALKS } from "../content/slotTalks";
 import { resolveChar, castFor } from "../content/characters";
 import Avatar from "./Avatar";
 import { useAppStore, suggestedPace } from "../store/useAppStore";
@@ -68,6 +69,35 @@ export default function DialogueList() {
           })}
         </div>
       </div>
+
+      {/* 🗣️ conversação por slots (aparece a partir da semana 13) */}
+      {currentWeek >= 13 && SLOT_TALKS.length > 0 && (
+        <div className="mt-5 rounded-3xl bg-gradient-to-br from-violet-50 to-sakura-50 p-4 shadow-sm">
+          <div className="px-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-violet-700">🗣️ {t("slot.eyebrow")}</p>
+            <p className="text-sm font-bold text-stone-800">{t("slot.sectionTitle")}</p>
+          </div>
+          <div className="mt-3 space-y-2">
+            {SLOT_TALKS.map((s) => {
+              const char = resolveChar(s.characterId, crush);
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => go({ name: "slotTalk", id: s.id })}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:shadow-md"
+                >
+                  <Avatar c={char} size={38} />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-stone-800">{s.title[lang]}</p>
+                    <p className="truncate text-[11px] text-stone-500">{s.questions.length} {t("slot.rounds")}</p>
+                  </div>
+                  <span className="text-stone-300">→</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="mt-5 space-y-6">
         {byChar.map(({ cid, dialogues }) => {

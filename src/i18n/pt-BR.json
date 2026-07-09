@@ -161,6 +161,17 @@
     "sayIt": "Falar esta resposta no microfone",
     "micMiss": "Ouvi 「{{heard}}」 — tenta de novo ou toca na opção."
   },
+  "slot": {
+    "eyebrow": "Conversa livre",
+    "sectionTitle": "Escolha as palavras — o papo flui",
+    "rounds": "rodadas",
+    "badge": "slots",
+    "compose": "Monte sua resposta",
+    "send": "Enviar",
+    "sayIt": "Falar",
+    "done": "Papo concluído! 🗣️",
+    "doneSub": "Cada resposta veio da SUA cabeça. Isso é conversa de verdade."
+  },
   "speak": {
     "sayThis": "Ouça e repita:",
     "listenBtn": "Ouvir",

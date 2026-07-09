@@ -161,6 +161,17 @@
     "sayIt": "Say this reply into the mic",
     "micMiss": "Heard 「{{heard}}」 — try again or tap the option."
   },
+  "slot": {
+    "eyebrow": "Free-form chat",
+    "sectionTitle": "Pick the words — the chat flows",
+    "rounds": "rounds",
+    "badge": "slots",
+    "compose": "Compose your reply",
+    "send": "Send",
+    "sayIt": "Say it",
+    "done": "Chat wrapped! 🗣️",
+    "doneSub": "Every reply came from YOUR head. That's real conversation."
+  },
   "speak": {
     "sayThis": "Listen and repeat:",
     "listenBtn": "Listen",
