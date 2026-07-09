@@ -36,7 +36,10 @@ export default function App() {
     void catchUpAndArm();
   }, [init, go]);
 
-  const toggleLang = () => i18n.changeLanguage(i18n.language.startsWith("pt") ? "en-US" : "pt-BR");
+  const toggleLang = () => {
+    const l = i18n.language;
+    i18n.changeLanguage(l.startsWith("pt") ? "en-US" : l === "en-US" ? "ja-JP" : "pt-BR");
+  };
 
   return (
     <div className="min-h-dvh bg-gradient-to-b from-sakura-50/40 via-sakura-50/20 to-white pb-24">
