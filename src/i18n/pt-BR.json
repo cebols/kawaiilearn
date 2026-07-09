@@ -81,6 +81,8 @@
     "goalCards": "Revisar / aprender cards",
     "goalSentences": "Montar frases",
     "goalConvos": "Ter uma conversa",
+    "goalSpeak": "Falar frases",
+    "speakAction": "Praticar fala",
     "remaining": "faltam",
     "completed": "concluído"
   },
@@ -130,6 +132,25 @@
     "failedSub": "Você errou {{n}} de {{total}}. Regra da casa: passar exige 100%.",
     "failedHint": "Revisar por 5 minutos antes de refazer geralmente resolve. O teste é sempre montado do zero, com novo embaralhamento.",
     "retry": "Refazer o teste"
+  },
+  "speak": {
+    "sayThis": "Ouça e repita:",
+    "listenBtn": "Ouvir",
+    "repeatBtn": "Repetir",
+    "listening": "Ouvindo…",
+    "perfect": "Perfeito! Pronúncia reconhecida.",
+    "close": "Quase! {{pct}}% parecido — tenta de novo.",
+    "off": "Hmm, saiu diferente. Ouça de novo e repita.",
+    "youSaid": "Você disse:",
+    "silent": "Não ouvi nada — chega mais perto do microfone.",
+    "micError": "Não consegui acessar o microfone. Confere a permissão no navegador.",
+    "retry": "De novo",
+    "next": "Próxima",
+    "done": "Prática de fala concluída! 🎤",
+    "doneSub": "{{n}} frases perfeitas nesta sessão.",
+    "hint": "Dica: fale num ritmo natural, sem pausar entre as sílabas.",
+    "unsupported": "Seu navegador não tem reconhecimento de fala",
+    "unsupportedSub": "Use Chrome ou Brave para praticar a pronúncia. Todo o resto do app funciona normalmente."
   },
   "lesson": {
     "tag": "Aula de gramática",

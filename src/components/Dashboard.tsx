@@ -343,7 +343,7 @@ function DailySection({
       </div>
 
       {/* chips das trilhas */}
-      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {goal.cards > 0 && (
           <TrackChip
             icon="🎴"
@@ -372,12 +372,22 @@ function DailySection({
             onClick={() => go({ name: "dialogues" })}
           />
         )}
+        {goal.speak > 0 && (
+          <TrackChip
+            icon="🎤"
+            label={t("home.goalSpeak")}
+            done={daily.speak}
+            goal={goal.speak}
+            onClick={() => go({ name: "shadow", week: currentWeek })}
+          />
+        )}
       </div>
 
       {/* atalhos secundários */}
       <div className="mt-4 border-t border-stone-100 pt-3">
         <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-stone-400">{t("home.quickActions")}</p>
         <div className="flex flex-wrap gap-2">
+          <SecondaryLink icon="🎤" label={t("home.speakAction")} onClick={() => go({ name: "shadow", week: currentWeek })} />
           <SecondaryLink icon="✍️" label={t("home.traceAction")} onClick={() => go({ name: "trace" })} />
           <SecondaryLink icon="🗺️" label={t("nav.curriculum")} onClick={() => go({ name: "curriculum" })} />
         </div>

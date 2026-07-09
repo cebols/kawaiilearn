@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { getKV, setKV } from "../db/db";
 import { deckStats, computeStreak, type DeckStats } from "../srs/engine";
-import { getDaily, persistDaily, type DailyProgress } from "../lib/daily";
+import { getDaily, persistDaily, EMPTY_DAILY, type DailyProgress } from "../lib/daily";
 import { deckForWeek } from "../content/decks";
 import type { CrushId } from "../content/characters";
 
@@ -14,7 +14,8 @@ export type View =
   | { name: "dialogues" }
   | { name: "dialogue"; id: string }
   | { name: "weekTest"; week: number }
-  | { name: "lesson"; id: string };
+  | { name: "lesson"; id: string }
+  | { name: "shadow"; week: number };
 
 /** Como o app se refere ao usuário — também define a dica de pronome (私/僕/あたし). */
 export type Gender = "female" | "male" | "neutral";
@@ -53,7 +54,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   startedAt: null,
   profile: undefined,
   completedDialogues: new Set(),
-  daily: { cards: 0, convos: 0, sentences: 0 },
+  daily: { ...EMPTY_DAILY },
   currentWeek: 1,
   go: (view) => set({ view }),
   refresh: async () => {

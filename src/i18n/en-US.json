@@ -81,6 +81,8 @@
     "goalCards": "Review / learn cards",
     "goalSentences": "Build sentences",
     "goalConvos": "Have a conversation",
+    "goalSpeak": "Speak phrases",
+    "speakAction": "Speaking practice",
     "remaining": "left",
     "completed": "done"
   },
@@ -130,6 +132,25 @@
     "failedSub": "You missed {{n}} of {{total}}. House rule: passing needs 100%.",
     "failedHint": "A quick 5-minute review before retrying usually does it. The test is rebuilt from scratch with fresh shuffling every time.",
     "retry": "Retake the test"
+  },
+  "speak": {
+    "sayThis": "Listen and repeat:",
+    "listenBtn": "Listen",
+    "repeatBtn": "Repeat",
+    "listening": "Listening…",
+    "perfect": "Perfect! Pronunciation recognized.",
+    "close": "Almost! {{pct}}% similar — try again.",
+    "off": "Hmm, that came out different. Listen again and repeat.",
+    "youSaid": "You said:",
+    "silent": "Didn't catch anything — get closer to the mic.",
+    "micError": "Couldn't access the microphone. Check the browser permission.",
+    "retry": "Again",
+    "next": "Next",
+    "done": "Speaking practice done! 🎤",
+    "doneSub": "{{n}} perfect phrases this session.",
+    "hint": "Tip: speak at a natural pace, without pausing between syllables.",
+    "unsupported": "Your browser doesn't support speech recognition",
+    "unsupportedSub": "Use Chrome or Brave to practice pronunciation. Everything else works normally."
   },
   "lesson": {
     "tag": "Grammar lesson",
