@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { DIALOGUES, CHAR_ORDER } from "../content/dialogues";
+import { SCENARIOS } from "../content/scenarios";
 import { resolveChar, castFor } from "../content/characters";
 import Avatar from "./Avatar";
 import { useAppStore, suggestedPace } from "../store/useAppStore";
@@ -7,7 +8,7 @@ import type { Dialogue } from "../types";
 
 export default function DialogueList() {
   const { t, i18n } = useTranslation();
-  const { go, profile, completedDialogues, startedAt } = useAppStore();
+  const { go, profile, completedDialogues, startedAt, currentWeek } = useAppStore();
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
   const crush = profile?.crush ?? "haruto";
   const pace = suggestedPace(startedAt);
@@ -24,6 +25,49 @@ export default function DialogueList() {
     <div className="mx-auto max-w-md pop-in">
       <h2 className="text-2xl font-bold text-stone-800">{t("dialogue.title")} 💬</h2>
       <p className="mt-1 text-sm text-stone-500">{t("dialogue.subtitle")}</p>
+
+      {/* 🧳 cenários de sobrevivência de viagem */}
+      <div className="mt-5 rounded-3xl bg-gradient-to-br from-amber-50 to-sakura-50 p-4 shadow-sm">
+        <div className="flex items-baseline justify-between gap-2 px-1">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-700">🧳 {t("scenario.eyebrow")}</p>
+            <p className="text-sm font-bold text-stone-800">{t("scenario.sectionTitle")}</p>
+          </div>
+        </div>
+        <div className="mt-3 space-y-2">
+          {SCENARIOS.map((s) => {
+            const recommended = s.week === currentWeek;
+            const ahead = s.week > currentWeek;
+            return (
+              <button
+                key={s.id}
+                onClick={() => go({ name: "scenario", id: s.id })}
+                className="flex w-full items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm transition hover:shadow-md"
+              >
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-50 text-xl">{s.emoji}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 text-sm font-bold text-stone-800">
+                    <span className="truncate">{s.title[lang]}</span>
+                    {recommended && (
+                      <span className="shrink-0 rounded-full bg-amber-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                        {t("scenario.now")}
+                      </span>
+                    )}
+                  </p>
+                  <p className="truncate text-[11px] text-stone-500">🎯 {s.goal[lang]}</p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
+                    ahead ? "bg-amber-100 text-amber-700" : "bg-stone-100 text-stone-500"
+                  }`}
+                >
+                  {t("dialogue.week")} {s.week}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="mt-5 space-y-6">
         {byChar.map(({ cid, dialogues }) => {

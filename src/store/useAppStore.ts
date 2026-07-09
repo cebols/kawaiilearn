@@ -15,7 +15,8 @@ export type View =
   | { name: "dialogue"; id: string }
   | { name: "weekTest"; week: number }
   | { name: "lesson"; id: string }
-  | { name: "shadow"; week: number };
+  | { name: "shadow"; week: number }
+  | { name: "scenario"; id: string };
 
 /** Como o app se refere ao usuário — também define a dica de pronome (私/僕/あたし). */
 export type Gender = "female" | "male" | "neutral";

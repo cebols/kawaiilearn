@@ -133,6 +133,14 @@
     "failedHint": "A quick 5-minute review before retrying usually does it. The test is rebuilt from scratch with fresh shuffling every time.",
     "retry": "Retake the test"
   },
+  "scenario": {
+    "eyebrow": "Travel mode",
+    "sectionTitle": "Survival scenarios",
+    "now": "recommended",
+    "backToList": "Back to chats",
+    "sayIt": "Say this reply into the mic",
+    "micMiss": "Heard 「{{heard}}」 — try again or tap the option."
+  },
   "speak": {
     "sayThis": "Listen and repeat:",
     "listenBtn": "Listen",

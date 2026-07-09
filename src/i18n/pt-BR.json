@@ -133,6 +133,14 @@
     "failedHint": "Revisar por 5 minutos antes de refazer geralmente resolve. O teste é sempre montado do zero, com novo embaralhamento.",
     "retry": "Refazer o teste"
   },
+  "scenario": {
+    "eyebrow": "Modo viagem",
+    "sectionTitle": "Cenários de sobrevivência",
+    "now": "recomendado",
+    "backToList": "Voltar às conversas",
+    "sayIt": "Falar esta resposta no microfone",
+    "micMiss": "Ouvi 「{{heard}}」 — tenta de novo ou toca na opção."
+  },
   "speak": {
     "sayThis": "Ouça e repita:",
     "listenBtn": "Ouvir",
