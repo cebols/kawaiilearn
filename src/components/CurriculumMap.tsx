@@ -3,6 +3,8 @@ import { WEEKS, PHASES } from "../content/curriculum";
 import { sentencesForWeek } from "../content/sentences";
 import { lessonsForWeek } from "../content/lessons";
 import { testAvailable } from "../content/weekTests";
+import { scenariosForWeek } from "../content/scenarios";
+import { SLOT_TALKS } from "../content/slotTalks";
 import { useAppStore, type View } from "../store/useAppStore";
 
 interface Activity {
@@ -14,18 +16,43 @@ interface Activity {
 /** Atividades jogáveis de cada semana (deriva do conteúdo existente). */
 function weekActivities(week: number): Activity[] {
   const acts: Activity[] = [];
+
+  // Kana + writing (weeks 1-2)
   if (week === 1) {
     acts.push({ icon: "🎴", labelKey: "curriculum.actKana", view: { name: "flashcards", deck: "hiragana" } });
     acts.push({ icon: "✍️", labelKey: "curriculum.actTrace", view: { name: "trace" } });
-    acts.push({ icon: "💬", labelKey: "curriculum.actChat", view: { name: "dialogues" } });
   } else if (week === 2) {
     acts.push({ icon: "🎴", labelKey: "curriculum.actKana", view: { name: "flashcards", deck: "katakana" } });
     acts.push({ icon: "✍️", labelKey: "curriculum.actTrace", view: { name: "trace" } });
-    acts.push({ icon: "💬", labelKey: "curriculum.actChat", view: { name: "dialogues" } });
   }
+
+  // Sentences (weeks with grammar content)
   if (sentencesForWeek(week).length > 0) {
     acts.push({ icon: "🧩", labelKey: "curriculum.actSentence", view: { name: "sentences", week } });
   }
+
+  // Speech shadowing — every week from 1
+  acts.push({ icon: "🎤", labelKey: "curriculum.actSpeak", view: { name: "shadow", week } });
+
+  // Numbers drill — survival skill, available from week 1
+  if (week === 1) {
+    acts.push({ icon: "🔢", labelKey: "curriculum.actNumbers", view: { name: "numbers" } });
+  }
+
+  // Travel scenarios (weeks 4-6)
+  if (scenariosForWeek(week).length > 0) {
+    acts.push({ icon: "✈️", labelKey: "curriculum.actScenario", view: { name: "dialogues" } });
+  }
+
+  // Conversations — every week
+  acts.push({ icon: "💬", labelKey: "curriculum.actChat", view: { name: "dialogues" } });
+
+  // Slot talks (week 13+)
+  const slotForWeek = SLOT_TALKS.filter((s) => s.week <= week);
+  if (slotForWeek.length > 0 && week >= 13) {
+    acts.push({ icon: "🗣️", labelKey: "curriculum.actSlot", view: { name: "slotTalk", id: slotForWeek[0].id } });
+  }
+
   return acts;
 }
 
