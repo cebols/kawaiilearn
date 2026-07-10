@@ -16,6 +16,8 @@ export interface KanaItem {
   /** dica mnemônica específica por idioma (não traduzida — escrita para cada língua) */
   mnemonic: L10n;
   row: string;
+  /** palavra de empréstimo icônica que ancora o katakana (opcional para hiragana) */
+  word?: { jp: string; romaji: string; meaning: L10n };
 }
 
 export interface VocabItem {

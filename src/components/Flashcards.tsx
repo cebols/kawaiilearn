@@ -167,6 +167,14 @@ export default function Flashcards({ deck }: { deck: string }) {
         {revealed ? (
           <div className="pop-in">
             <p className="text-3xl font-bold text-sakura-600">{item.romaji}</p>
+            {item.word && (
+              <div className="mt-3 rounded-2xl bg-violet-50 p-3 text-center">
+                <p className="jp text-2xl font-bold text-violet-700">{item.word.jp}</p>
+                <p className="mt-0.5 text-xs text-violet-500">
+                  {item.word.romaji} · {item.word.meaning[lang]}
+                </p>
+              </div>
+            )}
             <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-xs text-amber-800">
               💡 {t("flash.mnemonic")}: {item.mnemonic[lang]}
             </p>
