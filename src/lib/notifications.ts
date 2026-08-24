@@ -23,6 +23,11 @@ const KEY_ENABLED = "nudgesEnabled";
 interface PlannedNudge {
   templateIdx: number;
   at: number; // epoch ms
+  // rendered fields stored so the SW can show the notification without importing nudge templates
+  title: string;
+  body: string;
+  dialogueId: string;
+  tag: string;
 }
 
 interface Plan {
@@ -88,7 +93,7 @@ function pickTimeInWindow(template: Nudge): number {
 }
 
 /** Planeja os nudges de hoje (não substitui se já existir plano do dia). */
-async function planToday(): Promise<Plan> {
+async function planToday(lang: "pt" | "en" = "pt"): Promise<Plan> {
   const raw = await getKV(KEY_PLAN);
   const existing = raw ? (JSON.parse(raw) as Plan) : null;
   if (existing && existing.date === today()) return existing;
@@ -117,7 +122,15 @@ async function planToday(): Promise<Plan> {
     const at = pickTimeInWindow(t);
     if (at + 15 * 60_000 < Date.now()) continue; // já passou faz muito tempo
     seenChars.add(t.who);
-    chosen.push({ templateIdx: idx, at });
+    // render title+body now so the SW can show without importing templates
+    chosen.push({
+      templateIdx: idx,
+      at,
+      title: t.jp,
+      body: t.body[lang],
+      dialogueId: t.dialogueId,
+      tag: `kawaii-${idx}`,
+    });
   }
   chosen.sort((a, b) => a.at - b.at);
   const plan: Plan = { date: today(), items: chosen };
@@ -176,14 +189,14 @@ async function fireNudge(idx: number, catchUp = false): Promise<void> {
 let armedTimer: ReturnType<typeof setTimeout> | null = null;
 
 /** Dispara o próximo nudge quando chegar a hora, e re-arma pro seguinte. */
-async function armNext(): Promise<void> {
+async function armNext(lang: "pt" | "en"): Promise<void> {
   if (armedTimer) {
     clearTimeout(armedTimer);
     armedTimer = null;
   }
   if (Notification.permission !== "granted") return;
 
-  const plan = await planToday();
+  const plan = await planToday(lang);
   const now = Date.now();
   const upcoming = plan.items.filter((i) => i.at > now);
   if (upcoming.length === 0) return;
@@ -191,8 +204,22 @@ async function armNext(): Promise<void> {
   const wait = Math.max(500, next.at - now);
   armedTimer = setTimeout(async () => {
     await fireNudge(next.templateIdx);
-    void armNext();
+    void armNext(lang);
   }, wait);
+}
+
+/** Tenta registrar Periodic Background Sync (Chrome 80+ PWA — degrada graciosamente). */
+async function tryRegisterPeriodicSync(sw: ServiceWorkerRegistration): Promise<void> {
+  if (!("periodicSync" in sw)) return;
+  try {
+    // minInterval: 1h — o browser pode estender esse intervalo livremente
+    await (sw as unknown as { periodicSync: { register(tag: string, opts: { minInterval: number }): Promise<void> } }).periodicSync.register(
+      "nudge-check",
+      { minInterval: 60 * 60 * 1000 }
+    );
+  } catch {
+    // permissão negada ou browser não suporta — fallback para setTimeout
+  }
 }
 
 /** Ao abrir o app: dispara os que já deviam ter saído e re-arma o próximo.
@@ -204,7 +231,8 @@ export async function catchUpAndArm(): Promise<void> {
   if (Notification.permission !== "granted") return;
   if ((await getKV(KEY_ENABLED)) !== "1") return;
 
-  const plan = await planToday();
+  const lang = navigator.language.startsWith("pt") ? "pt" : "en";
+  const plan = await planToday(lang);
   const now = Date.now();
   // Catch up ALL of today's planned nudges regardless of how long ago — window
   // check is skipped (catchUp=true) so a 7am notification missed until 6pm still fires.
@@ -212,7 +240,7 @@ export async function catchUpAndArm(): Promise<void> {
   for (const item of overdue) {
     await fireNudge(item.templateIdx, true);
   }
-  void armNext();
+  void armNext(lang);
 }
 
 /** Botão "ativar notificações" chama isto. */
@@ -226,6 +254,9 @@ export async function enableNotifications(): Promise<NotificationPermission> {
   const result = await Notification.requestPermission();
   if (result === "granted") {
     await setKV(KEY_ENABLED, "1");
+    // try to register background sync so notifications work even with the tab closed
+    const sw = await getSW();
+    if (sw) void tryRegisterPeriodicSync(sw);
     void catchUpAndArm();
   }
   return result;
