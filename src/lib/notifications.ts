@@ -121,7 +121,8 @@ async function planToday(): Promise<Plan> {
   }
   chosen.sort((a, b) => a.at - b.at);
   const plan: Plan = { date: today(), items: chosen };
-  await setKV(KEY_PLAN, JSON.stringify(plan));
+  // don't persist empty plans — next open will try again with updated times
+  if (chosen.length > 0) await setKV(KEY_PLAN, JSON.stringify(plan));
   return plan;
 }
 
@@ -147,11 +148,18 @@ async function isSent(templateIdx: number): Promise<boolean> {
   return sent.date === today() && sent.templateIdxs.includes(templateIdx);
 }
 
-async function fireNudge(idx: number): Promise<void> {
+function inQuietHours(): boolean {
+  const h = new Date().getHours();
+  return h < QUIET_END || h >= QUIET_START;
+}
+
+/** catchUp=true skips the template's narrow time window (but still respects quiet hours). */
+async function fireNudge(idx: number, catchUp = false): Promise<void> {
   if (Notification.permission !== "granted") return;
   if (await isSent(idx)) return;
+  if (inQuietHours()) return;
   const t = NUDGES[idx];
-  if (!eligibleAt(t, new Date())) return;
+  if (!catchUp && !eligibleAt(t, new Date())) return;
   const sw = await getSW();
   if (!sw || !sw.active) return;
   const url = `/kawaiilearn/?dialogue=${encodeURIComponent(t.dialogueId)}`;
@@ -187,7 +195,10 @@ async function armNext(): Promise<void> {
   }, wait);
 }
 
-/** Ao abrir o app: dispara os que já deviam ter saído e re-arma o próximo. */
+/** Ao abrir o app: dispara os que já deviam ter saído e re-arma o próximo.
+ *  Catch-up ignora a janela do personagem (não faz sentido exigir que seja
+ *  7-9h pra mandar a notificação que estava marcada pro café) — mas ainda
+ *  respeita quiet hours (7h-22h) para não irritar a pessoa. */
 export async function catchUpAndArm(): Promise<void> {
   if (!notificationsSupported()) return;
   if (Notification.permission !== "granted") return;
@@ -195,11 +206,11 @@ export async function catchUpAndArm(): Promise<void> {
 
   const plan = await planToday();
   const now = Date.now();
-  const overdue = plan.items.filter((i) => i.at <= now && i.at > now - 4 * 3600_000);
+  // Catch up ALL of today's planned nudges regardless of how long ago — window
+  // check is skipped (catchUp=true) so a 7am notification missed until 6pm still fires.
+  const overdue = plan.items.filter((i) => i.at <= now);
   for (const item of overdue) {
-    // só dispara se ainda estiver na janela do personagem
-    const t = NUDGES[item.templateIdx];
-    if (eligibleAt(t, new Date())) await fireNudge(item.templateIdx);
+    await fireNudge(item.templateIdx, true);
   }
   void armNext();
 }

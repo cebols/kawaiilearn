@@ -233,7 +233,11 @@
     "practiceBadge": "練習 — スケジュールに影響しません",
     "backHome": "ホームへ戻る",
     "whichRomaji": "読み方は？",
-    "meaning": "意味"
+    "meaning": "意味",
+    "struggles": "要復習 🔁",
+    "struggleHint": "これらのカードは難しかった — もう一度確認しましょう。",
+    "practiceWeak": "苦手カナの練習",
+    "weakCards": "要注意"
   },
   "trace": {
     "title": "書き方練習",

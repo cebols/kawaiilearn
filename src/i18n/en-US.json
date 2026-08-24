@@ -233,7 +233,11 @@
     "practiceBadge": "practice — doesn't affect scheduling",
     "backHome": "Back home",
     "whichRomaji": "How is it read?",
-    "meaning": "Meaning"
+    "meaning": "Meaning",
+    "struggles": "Needs more work 🔁",
+    "struggleHint": "These tripped you up — the app already brought them back. Review the hints and try again.",
+    "practiceWeak": "Drill weak kana",
+    "weakCards": "need attention"
   },
   "trace": {
     "title": "Writing practice",

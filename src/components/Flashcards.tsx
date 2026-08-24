@@ -6,6 +6,7 @@ import {
   ensureDeck,
   buildQueue,
   buildCramQueue,
+  buildWeakQueue,
   countNewInDeck,
   review,
   Rating,
@@ -15,8 +16,8 @@ import type { StoredCard } from "../db/db";
 import { speak, ttsAvailable } from "../lib/tts";
 import { useAppStore } from "../store/useAppStore";
 
-/** Sessão de flashcards SRS do deck de hiragana (leitura). */
-export default function Flashcards({ deck }: { deck: string }) {
+/** Sessão de flashcards SRS. `deck` pode ter sufixo `:weak` para modo de reforço. */
+export default function Flashcards({ deck: deckProp }: { deck: string }) {
   const { t, i18n } = useTranslation();
   const { go, refresh, recordActivity } = useAppStore();
   const [queue, setQueue] = useState<StoredCard[] | null>(null);
@@ -24,9 +25,15 @@ export default function Flashcards({ deck }: { deck: string }) {
   const [revealed, setRevealed] = useState(false);
   const [reviewed, setReviewed] = useState(0);
   const [moreNew, setMoreNew] = useState(0);
+  /** ids de cards que levaram Rating.Again nessa sessão */
+  const [sessionAgains, setSessionAgains] = useState<string[]>([]);
   /** modo prática: quiz sem remexer no agendamento FSRS */
   const [cram, setCram] = useState(false);
   const lang = i18n.language.startsWith("pt") ? "pt" : "en";
+
+  // strip `:weak` suffix — used to signal "drill only struggling cards"
+  const isWeak = deckProp.endsWith(":weak");
+  const deck = isWeak ? deckProp.slice(0, -5) : deckProp;
   const items = kanaDeck(deck).items;
 
   useEffect(() => {
@@ -36,9 +43,15 @@ export default function Flashcards({ deck }: { deck: string }) {
         items.map((h) => h.id),
         "reading"
       );
-      setQueue(await buildQueue(deck, "reading"));
+      if (isWeak) {
+        const q = await buildWeakQueue(deck, "reading");
+        setQueue(q);
+        setCram(true); // weak mode is always cram — doesn't affect FSRS scheduling
+      } else {
+        setQueue(await buildQueue(deck, "reading"));
+      }
     })();
-  }, [deck, items]);
+  }, [deck, isWeak, items]);
 
   const current = queue?.[idx];
   const item = current ? items.find((h) => h.id === current.itemId) : undefined;
@@ -63,6 +76,9 @@ export default function Flashcards({ deck }: { deck: string }) {
       const updated = cram ? current : await review(current, rating);
       setReviewed((n) => n + 1);
       setRevealed(false);
+      if (rating === Rating.Again) {
+        setSessionAgains((prev) => prev.includes(current.itemId) ? prev : [...prev, current.itemId]);
+      }
       setQueue((q) => {
         if (!q) return q;
         const next = [...q];
@@ -100,6 +116,11 @@ export default function Flashcards({ deck }: { deck: string }) {
   if (!current || !item) {
     const capHit = reviewed === 0 && moreNew > 0;
     const heading = reviewed > 0 ? t("flash.sessionDone") : moreNew > 0 ? t("flash.dailyDone") : t("flash.noCards");
+    // map Again item IDs back to kana characters for the struggles panel
+    const againKana = sessionAgains
+      .map((id) => items.find((h) => h.id === id))
+      .filter(Boolean) as typeof items;
+
     return (
       <div className="mx-auto max-w-md pop-in rounded-3xl bg-white p-10 text-center shadow-sm">
         <p className="text-4xl">{moreNew > 0 ? "🌸" : "🎉"}</p>
@@ -110,24 +131,42 @@ export default function Flashcards({ deck }: { deck: string }) {
           </p>
         )}
         {capHit && <p className="mt-2 text-xs text-stone-400">{t("flash.dailyDoneSub")}</p>}
-        {moreNew === 0 && <p className="mt-2 text-xs text-stone-400">{t("flash.allLearned")}</p>}
+        {moreNew === 0 && !isWeak && <p className="mt-2 text-xs text-stone-400">{t("flash.allLearned")}</p>}
+
+        {/* struggles panel — only shown when there were Again ratings */}
+        {againKana.length > 0 && (
+          <div className="mt-5 rounded-2xl bg-rose-50 p-4 text-left">
+            <p className="text-xs font-bold uppercase tracking-wider text-rose-600">
+              {t("flash.struggles")}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {againKana.map((h) => (
+                <div key={h.id} className="rounded-xl bg-white px-3 py-2 text-center shadow-sm">
+                  <p className="jp text-2xl font-bold text-stone-800">{h.kana}</p>
+                  <p className="mt-0.5 text-[10px] text-stone-500">{h.romaji}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-2 text-[10px] text-rose-500">{t("flash.struggleHint")}</p>
+          </div>
+        )}
 
         <div className="mt-6 flex flex-col gap-2">
-          {moreNew > 0 ? (
+          {moreNew > 0 && !isWeak ? (
             <button
               onClick={loadMore}
               className="rounded-full bg-sakura-500 px-6 py-2.5 font-semibold text-white transition hover:bg-sakura-600"
             >
               {t("flash.learnMore", { count: Math.min(NEW_PER_DAY, moreNew) })}
             </button>
-          ) : (
+          ) : !isWeak ? (
             <button
               onClick={startCram}
               className="rounded-full bg-violet-500 px-6 py-2.5 font-semibold text-white transition hover:bg-violet-600"
             >
               {t("flash.practice")}
             </button>
-          )}
+          ) : null}
           <button
             onClick={() => go({ name: "home" })}
             className="rounded-full bg-stone-100 px-6 py-2.5 font-semibold text-stone-600 transition hover:bg-stone-200"

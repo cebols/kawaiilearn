@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { useAppStore } from "../store/useAppStore";
@@ -12,6 +13,7 @@ import { goalForWeek, dailyPercent, type DailyProgress } from "../lib/daily";
 import { testAvailable } from "../content/weekTests";
 import { lessonsForWeek } from "../content/lessons";
 import { deckForWeek, kanaDeck } from "../content/decks";
+import { weeklyActivity, weakCardCount } from "../srs/engine";
 import Avatar from "./Avatar";
 import NotificationsCard from "./NotificationsCard";
 import type { View } from "../store/useAppStore";
@@ -31,10 +33,17 @@ export default function Dashboard() {
 
   const reg = computeRegister(completedDialogues);
 
+  const [activityDays, setActivityDays] = useState<Set<string>>(new Set());
+  const [weakCount, setWeakCount] = useState(0);
+  useEffect(() => {
+    void weeklyActivity().then(setActivityDays);
+    void weakCardCount(deckId, "reading").then(setWeakCount);
+  }, [deckId]);
+
   return (
     <div className="mx-auto max-w-3xl space-y-5 pop-in">
       {/* ── faixa: streak + medidor de registro compactos ── */}
-      <TopStrip streak={streak} due={stats.due} reg={reg.reg} regFromPractice={reg.fromPractice} t={t} />
+      <TopStrip streak={streak} due={stats.due} reg={reg.reg} regFromPractice={reg.fromPractice} activityDays={activityDays} t={t} />
 
       {/* ── trilha das 20 semanas ── */}
       <WeekTrack currentWeek={currentWeek} onPick={() => go({ name: "curriculum" })} weekTitle={week?.title[lang]} lang={lang} t={t} />
@@ -61,6 +70,7 @@ export default function Dashboard() {
         currentWeek={currentWeek}
         deckId={deckId}
         deckTitle={deckTitle}
+        weakCount={weakCount}
         go={go}
         t={t}
       />
@@ -74,26 +84,52 @@ export default function Dashboard() {
   );
 }
 
+const STREAK_MILESTONES_PT: Record<number, string> = {
+  3: "3 dias! 🔥", 7: "Uma semana! 🎉", 14: "Duas semanas! 🏆",
+  30: "30 dias! 🌸🏅", 60: "60 dias! 🇯🇵", 100: "100 dias! 🎊",
+};
+const STREAK_MILESTONES_EN: Record<number, string> = {
+  3: "3 days! 🔥", 7: "One week! 🎉", 14: "Two weeks! 🏆",
+  30: "30 days! 🌸🏅", 60: "60 days! 🇯🇵", 100: "100 days! 🎊",
+};
+const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+
 // ═══════════════ TOP STRIP ═══════════════
 function TopStrip({
   streak,
   due,
   reg,
   regFromPractice,
+  activityDays,
   t,
 }: {
   streak: number;
   due: number;
   reg: { polite: number; casual: number };
   regFromPractice: boolean;
+  activityDays: Set<string>;
   t: TFn;
 }) {
+  const isJa = false; // Japanese UI doesn't need milestone text differences
+  const milestones = isJa ? STREAK_MILESTONES_EN : STREAK_MILESTONES_PT;
+  const milestone = milestones[streak];
+  const flame = streak >= 30 ? "🔥🔥🔥" : streak >= 14 ? "🔥🔥" : "🔥";
+
+  // last 7 calendar days, leftmost = 6 days ago
+  const dots = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return { key: d.toDateString(), label: DAY_LABELS[d.getDay()], isToday: i === 6 };
+  });
+
   return (
     <div className="rounded-2xl border border-sakura-100 bg-white/70 p-3 shadow-sm backdrop-blur">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1.5">
-          <span className="text-lg">🔥</span>
-          <span className="text-lg font-extrabold tabular-nums text-amber-500">{streak}</span>
+          <span className={`${streak >= 14 ? "text-xl" : "text-lg"}`}>{streak > 0 ? flame : "✨"}</span>
+          <span className={`font-extrabold tabular-nums text-amber-500 ${streak >= 100 ? "text-xl" : "text-lg"}`}>
+            {streak}
+          </span>
           <span className="text-[10px] text-stone-500">{t("home.streak")}</span>
         </div>
         <div className="hidden items-center gap-1.5 sm:flex">
@@ -119,6 +155,29 @@ function TopStrip({
           </div>
         </div>
       </div>
+
+      {/* 7-day activity dots */}
+      <div className="mt-3 flex items-end gap-1">
+        {dots.map(({ key, label, isToday }) => {
+          const active = activityDays.has(key);
+          return (
+            <div key={key} className="flex flex-1 flex-col items-center gap-0.5">
+              <div
+                className={`h-2 w-full rounded-full transition ${
+                  active ? "bg-amber-400" : isToday ? "border-2 border-dashed border-amber-200 bg-transparent" : "bg-stone-100"
+                }`}
+              />
+              <span className={`text-[8px] font-bold ${isToday ? "text-amber-500" : "text-stone-300"}`}>{label}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {milestone && (
+        <div className="mt-2 rounded-xl bg-amber-400 py-1.5 text-center text-xs font-bold text-white">
+          {milestone}
+        </div>
+      )}
     </div>
   );
 }
@@ -317,6 +376,7 @@ function DailySection({
   currentWeek,
   deckId,
   deckTitle,
+  weakCount,
   go,
   t,
 }: {
@@ -326,6 +386,7 @@ function DailySection({
   currentWeek: number;
   deckId: string;
   deckTitle: string;
+  weakCount: number;
   go: (v: View) => void;
   t: TFn;
 }) {
@@ -379,6 +440,16 @@ function DailySection({
             done={daily.speak}
             goal={goal.speak}
             onClick={() => go({ name: "shadow", week: currentWeek })}
+          />
+        )}
+        {weakCount > 0 && (
+          <TrackChip
+            icon="🔁"
+            label={t("flash.practiceWeak")}
+            detail={`${weakCount} ${t("flash.weakCards")}`}
+            done={0}
+            goal={weakCount}
+            onClick={() => go({ name: "flashcards", deck: `${deckId}:weak` })}
           />
         )}
       </div>

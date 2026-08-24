@@ -131,6 +131,40 @@ export async function deckStats(deck?: string): Promise<DeckStats> {
   return { due, fresh: Math.min(fresh, quota), learning, mastered, total: all.length };
 }
 
+/** Últimos 7 dias com pelo menos uma revisão — para o calendário de atividade. */
+export async function weeklyActivity(): Promise<Set<string>> {
+  const since = Date.now() - 7 * 86_400_000;
+  const rows = await db.reviews.where("reviewedAt").above(since).toArray();
+  return new Set(rows.map((r) => new Date(r.reviewedAt).toDateString()));
+}
+
+/** Fila de cards "fracos": os que receberam Rating.Again mais vezes nos últimos 14 dias.
+ *  Útil para uma sessão focada de reforço. */
+export async function buildWeakQueue(deck: string, skill: Skill): Promise<StoredCard[]> {
+  const since = Date.now() - 14 * 86_400_000;
+  const allCards = (await db.cards.where("deck").equals(deck).toArray()).filter(
+    (c) => c.skill === skill && c.fsrs.state !== State.New
+  );
+  const cardIdSet = new Set(allCards.map((c) => c.id));
+  const againRows = await db.reviews
+    .where("reviewedAt")
+    .above(since)
+    .filter((r) => r.rating === Rating.Again && cardIdSet.has(r.cardId))
+    .toArray();
+  // count Again hits per card
+  const hits: Record<string, number> = {};
+  for (const r of againRows) hits[r.cardId] = (hits[r.cardId] ?? 0) + 1;
+  // sort by most hits first, only return cards with ≥1 Again
+  return allCards
+    .filter((c) => (hits[c.id] ?? 0) > 0)
+    .sort((a, b) => (hits[b.id] ?? 0) - (hits[a.id] ?? 0));
+}
+
+/** Quantidade de cards frágeis (≥1 Again nos últimos 14 dias) no deck. */
+export async function weakCardCount(deck: string, skill: Skill): Promise<number> {
+  return (await buildWeakQueue(deck, skill)).length;
+}
+
 /** Streak: dias consecutivos com pelo menos uma revisão. */
 export async function computeStreak(): Promise<number> {
   const reviews = await db.reviews.orderBy("reviewedAt").reverse().limit(2000).toArray();
