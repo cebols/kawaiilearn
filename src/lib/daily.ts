@@ -2,6 +2,7 @@ import { getKV, setKV } from "../db/db";
 import { sentencesForWeek } from "../content/sentences";
 import { DIALOGUES } from "../content/dialogues";
 import { speechAvailable } from "./speech";
+import { vocabForWeek } from "../content/vocab";
 
 /** Contagem de atividades do dia — reseta sozinho na virada (chave por data). */
 export interface DailyProgress {
@@ -10,9 +11,11 @@ export interface DailyProgress {
   sentences: number;
   /** frases faladas com nota "perfect" no shadowing */
   speak: number;
+  /** cards de vocabulário revisados/aprendidos */
+  vocab: number;
 }
 
-export const EMPTY_DAILY: DailyProgress = { cards: 0, convos: 0, sentences: 0, speak: 0 };
+export const EMPTY_DAILY: DailyProgress = { cards: 0, convos: 0, sentences: 0, speak: 0, vocab: 0 };
 
 /**
  * Meta diária derivada da semana sugerida do currículo: só cobra as
@@ -25,6 +28,7 @@ export function goalForWeek(week: number): DailyProgress {
     convos: DIALOGUES.some((d) => d.week <= week) ? 1 : 0,
     sentences: sentencesForWeek(week).length > 0 ? 3 : 0,
     speak: speechAvailable() ? 5 : 0,
+    vocab: vocabForWeek(week).length > 0 ? 5 : 0,
   };
 }
 
@@ -48,7 +52,7 @@ export function persistDaily(d: DailyProgress): Promise<void> {
 /** 0–100: quão perto a pessoa está da meta do dia (só trilhas com meta > 0). */
 export function dailyPercent(d: DailyProgress, goal: DailyProgress): number {
   const parts: number[] = [];
-  for (const k of ["cards", "convos", "sentences", "speak"] as const) {
+  for (const k of ["cards", "convos", "sentences", "speak", "vocab"] as const) {
     if (goal[k] > 0) parts.push(Math.min(d[k] / goal[k], 1));
   }
   if (parts.length === 0) return 100;

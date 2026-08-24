@@ -106,6 +106,7 @@
     "actChat": "Conversas",
     "actSentence": "Montar frases",
     "actSlot": "Conversa livre",
+    "actVocab": "Vocabulário",
     "actTest": "Teste da semana",
     "lessons": "Lições de gramática",
     "subtitleMastery": "Avança pelo domínio, não pelo calendário. Passe no teste da semana para destravar a próxima.",
@@ -302,6 +303,16 @@
     "onTitle": "Notificações ativas 🔔",
     "onSub": "Seus amigos vão te chamar em horários que fazem sentido. Se quiser desativar, é nas configurações do navegador.",
     "sample": "Ver uma amostra agora"
+  },
+  "vocab": {
+    "prompt": "Qual o significado?",
+    "casualForm": "Forma casual",
+    "sessionDone": "Sessão de vocabulário concluída! 🎉",
+    "dailyDone": "Vocabulário novo de hoje concluído! 🌸",
+    "dailyDoneSub": "Esse é o ritmo sugerido. O progresso é livre — dá pra continuar.",
+    "noCards": "Nenhum card de vocabulário pendente agora!",
+    "reviewed": "palavras revisadas",
+    "goalLabel": "Aprender vocabulário"
   },
   "lang": { "switch": "English" }
 }

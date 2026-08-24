@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { WEEKS, PHASES } from "../content/curriculum";
 import { sentencesForWeek } from "../content/sentences";
 import { lessonsForWeek } from "../content/lessons";
+import { vocabForWeek } from "../content/vocab";
 import { testAvailable } from "../content/weekTests";
 import { scenariosForWeek } from "../content/scenarios";
 import { SLOT_TALKS } from "../content/slotTalks";
@@ -24,6 +25,11 @@ function weekActivities(week: number): Activity[] {
   } else if (week === 2) {
     acts.push({ icon: "🎴", labelKey: "curriculum.actKana", view: { name: "flashcards", deck: "katakana" } });
     acts.push({ icon: "✍️", labelKey: "curriculum.actTrace", view: { name: "trace" } });
+  }
+
+  // Vocab deck (weeks 1, 3+)
+  if (vocabForWeek(week).length > 0) {
+    acts.push({ icon: "📖", labelKey: "curriculum.actVocab", view: { name: "vocabFlash", week } });
   }
 
   // Sentences (weeks with grammar content)

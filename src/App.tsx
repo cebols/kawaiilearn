@@ -16,6 +16,7 @@ import SpeechShadow from "./components/SpeechShadow";
 import ScenarioPlay from "./components/ScenarioPlay";
 import NumberDrill from "./components/NumberDrill";
 import SlotTalk from "./components/SlotTalk";
+import VocabFlashcards from "./components/VocabFlashcards";
 import Onboarding from "./components/Onboarding";
 
 export default function App() {
@@ -76,6 +77,7 @@ export default function App() {
         {view.name === "scenario" && <ScenarioPlay id={view.id} key={view.id} />}
         {view.name === "numbers" && <NumberDrill />}
         {view.name === "slotTalk" && <SlotTalk id={view.id} key={view.id} />}
+        {view.name === "vocabFlash" && <VocabFlashcards week={view.week} key={`vocab-${view.week}`} />}
         {view.name === "dialogues" && <DialogueList />}
         {view.name === "dialogue" && <ChatDialogue id={view.id} key={view.id} />}
       </main>

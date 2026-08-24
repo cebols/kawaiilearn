@@ -106,6 +106,7 @@
     "actChat": "会話",
     "actSentence": "文を組み立てる",
     "actSlot": "フリー会話",
+    "actVocab": "語彙",
     "actTest": "週のテスト",
     "lessons": "文法レッスン",
     "subtitleMastery": "カレンダーではなく理解度で進む。週のテストに合格して次へ。",
@@ -302,6 +303,16 @@
     "onTitle": "通知オン 🔔",
     "onSub": "友達が自然な時間に連絡してきます。オフにするにはブラウザの設定で。",
     "sample": "今すぐサンプルを送る"
+  },
+  "vocab": {
+    "prompt": "意味は何ですか？",
+    "casualForm": "くだけた形",
+    "sessionDone": "語彙セッション完了！ 🎉",
+    "dailyDone": "今日の新しい語彙は完了！ 🌸",
+    "dailyDoneSub": "これが推奨ペースです。自由に続けられます。",
+    "noCards": "今は復習する語彙カードがありません！",
+    "reviewed": "語彙を復習",
+    "goalLabel": "語彙を学ぶ"
   },
   "lang": { "switch": "PT-BR" }
 }

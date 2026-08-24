@@ -5,7 +5,7 @@ import { useAppStore } from "../store/useAppStore";
 
 // t: aceitamos qualquer chave (string) com valores opcionais — evita conflito de tipos genéricos
 type TFn = TFunction;
-import { VOCAB_W1, registerStats } from "../content/vocab";
+import { VOCAB_W1, registerStats, vocabForWeek } from "../content/vocab";
 import { castFor } from "../content/characters";
 import { DIALOGUES } from "../content/dialogues";
 import { WEEKS, PHASES } from "../content/curriculum";
@@ -32,6 +32,8 @@ export default function Dashboard() {
   const readyForTest = pct >= 100 && testAvailable(currentWeek) && currentWeek < 20;
 
   const reg = computeRegister(completedDialogues);
+
+  const vocabItems = vocabForWeek(currentWeek);
 
   const [activityDays, setActivityDays] = useState<Set<string>>(new Set());
   const [weakCount, setWeakCount] = useState(0);
@@ -71,6 +73,7 @@ export default function Dashboard() {
         deckId={deckId}
         deckTitle={deckTitle}
         weakCount={weakCount}
+        hasVocab={vocabItems.length > 0}
         go={go}
         t={t}
       />
@@ -377,6 +380,7 @@ function DailySection({
   deckId,
   deckTitle,
   weakCount,
+  hasVocab,
   go,
   t,
 }: {
@@ -387,6 +391,7 @@ function DailySection({
   deckId: string;
   deckTitle: string;
   weakCount: number;
+  hasVocab: boolean;
   go: (v: View) => void;
   t: TFn;
 }) {
@@ -440,6 +445,15 @@ function DailySection({
             done={daily.speak}
             goal={goal.speak}
             onClick={() => go({ name: "shadow", week: currentWeek })}
+          />
+        )}
+        {hasVocab && goal.vocab > 0 && (
+          <TrackChip
+            icon="📖"
+            label={t("vocab.goalLabel")}
+            done={daily.vocab}
+            goal={goal.vocab}
+            onClick={() => go({ name: "vocabFlash", week: currentWeek })}
           />
         )}
         {weakCount > 0 && (

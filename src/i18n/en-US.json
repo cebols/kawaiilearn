@@ -106,6 +106,7 @@
     "actChat": "Chats",
     "actSentence": "Build sentences",
     "actSlot": "Free chat",
+    "actVocab": "Vocabulary",
     "actTest": "Week test",
     "lessons": "Grammar lessons",
     "subtitleMastery": "You advance by mastery, not by calendar. Pass a week's test to unlock the next.",
@@ -302,6 +303,16 @@
     "onTitle": "Notifications on 🔔",
     "onSub": "Your friends will reach out at natural hours. To turn off, use your browser settings.",
     "sample": "Send a sample now"
+  },
+  "vocab": {
+    "prompt": "What does this mean?",
+    "casualForm": "Casual form",
+    "sessionDone": "Vocab session done! 🎉",
+    "dailyDone": "Today's new vocab done! 🌸",
+    "dailyDoneSub": "That's the suggested pace. Progress is free — you can keep going.",
+    "noCards": "No vocab cards due right now!",
+    "reviewed": "words reviewed",
+    "goalLabel": "Learn vocabulary"
   },
   "lang": { "switch": "日本語" }
 }
